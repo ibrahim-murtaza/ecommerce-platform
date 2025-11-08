@@ -1,0 +1,9 @@
+.vscode/
+.DS_Store
+Thumbs.db
+**/appsettings.json
+**/connectionstrings.config
+bin/
+obj/
+*.dll
+*.exe
