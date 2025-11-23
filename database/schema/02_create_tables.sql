@@ -52,34 +52,6 @@ CREATE TABLE Cart (
         REFERENCES Product(ProductID)
 );
 
--- Order table
-CREATE TABLE [Order] (
-    OrderID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT NOT NULL,
-    OrderDate DATETIME DEFAULT GETDATE(),
-    TotalAmount DECIMAL(10,2) NOT NULL CHECK (TotalAmount >= 0),
-    Status VARCHAR(50) NOT NULL DEFAULT 'Pending',
-    ShippingAddress VARCHAR(500) NOT NULL,
-    ShippingCity VARCHAR(100),
-    ShippingPostalCode VARCHAR(20),
-    CONSTRAINT FK_Order_User FOREIGN KEY (UserID) 
-        REFERENCES [User](UserID),
-    CONSTRAINT CHK_Order_Status CHECK (Status IN ('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'))
-);
-
--- OrderItem table
-CREATE TABLE OrderItem (
-    OrderItemID INT PRIMARY KEY IDENTITY(1,1),
-    OrderID INT NOT NULL,
-    ProductID INT NOT NULL,
-    Quantity INT NOT NULL CHECK (Quantity > 0),
-    PriceAtPurchase DECIMAL(10,2) NOT NULL CHECK (PriceAtPurchase >= 0),
-    CONSTRAINT FK_OrderItem_Order FOREIGN KEY (OrderID) 
-        REFERENCES [Order](OrderID) ON DELETE CASCADE,
-    CONSTRAINT FK_OrderItem_Product FOREIGN KEY (ProductID) 
-        REFERENCES Product(ProductID)
-);
-
 -- Admin table
 CREATE TABLE Admin (
     AdminID INT PRIMARY KEY IDENTITY(1,1),
