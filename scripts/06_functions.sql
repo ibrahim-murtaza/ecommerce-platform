@@ -65,15 +65,3 @@ GO
 
 PRINT 'Functions created successfully!';
 GO
-
--- Test the functions (optional)
-/*
--- Test CalculateCartTotal
-SELECT dbo.CalculateCartTotal(1) AS CartTotal;
-
--- Test GetUserOrderCount
-SELECT dbo.GetUserOrderCount(1) AS OrderCount;
-
--- Test CheckStockAvailability
-SELECT dbo.CheckStockAvailability(1, 5) AS IsAvailable;
-*/
