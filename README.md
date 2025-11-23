@@ -17,8 +17,6 @@ ecommerce-platform/
 │       ├── 01_create_database.sql
 │       └── 02_create_tables.sql
 ├── scripts/
-│   ├── 01_create_database.sql
-│   ├── 02_create_tables.sql
 │   ├── 03_partition_tables.sql
 │   ├── 04_views.sql
 │   ├── 05_indexes.sql
@@ -98,7 +96,7 @@ Execute SQL scripts in VS Code in this order:
    
    **Note:** Update the database password in Python scripts before running:
    ```python
-   'PWD=YourStrong!Passw0rd;'  # Replace with your SQL Server SA password
+   'PWD=YourStrong!Passw0rd;'
    ```
 
 4. **Verify Data Load**
