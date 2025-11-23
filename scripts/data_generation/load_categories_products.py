@@ -1,7 +1,6 @@
 import pyodbc
 import csv
 
-# Database connection
 conn_str = (
     'DRIVER={ODBC Driver 17 for SQL Server};'
     'SERVER=localhost,1433;'
@@ -14,8 +13,7 @@ try:
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     print("Connected to database successfully!")
-    
-    # Load Categories
+
     print("Loading categories...")
     with open('categories.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -28,8 +26,7 @@ try:
             count += 1
         conn.commit()
         print(f"Loaded {count} categories successfully!")
-    
-    # Load Products
+
     print("Loading products...")
     with open('products.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -46,8 +43,7 @@ try:
                 row['DateAdded'],
                 int(row['IsActive'])
             ))
-            
-            # Insert in batches of 1000
+
             if len(batch) >= 1000:
                 cursor.executemany(
                     "INSERT INTO Product (CategoryID, ProductName, Description, Price, StockQuantity, ImageURL, DateAdded, IsActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -57,8 +53,7 @@ try:
                 count += len(batch)
                 print(f"Loaded {count} products...")
                 batch = []
-        
-        # Insert remaining
+
         if batch:
             cursor.executemany(
                 "INSERT INTO Product (CategoryID, ProductName, Description, Price, StockQuantity, ImageURL, DateAdded, IsActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",

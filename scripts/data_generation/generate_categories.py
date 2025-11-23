@@ -1,7 +1,6 @@
 import csv
 import random
 
-# Category names for e-commerce
 categories = [
     "Electronics",
     "Clothing",
@@ -55,7 +54,6 @@ categories = [
     "Painting & Drawing",
 ]
 
-# Generate CSV
 with open("categories.csv", "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(["CategoryName", "Description", "IsActive"])

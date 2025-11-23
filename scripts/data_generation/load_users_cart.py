@@ -1,7 +1,6 @@
 import pyodbc
 import csv
 
-# Database connection
 conn_str = (
     'DRIVER={ODBC Driver 17 for SQL Server};'
     'SERVER=localhost,1433;'
@@ -14,13 +13,11 @@ try:
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     print("Connected to database successfully!")
-    
-    # Disable cart validation trigger for bulk insert
+
     print("Disabling cart validation trigger...")
     cursor.execute("DISABLE TRIGGER trg_InsteadOfCart_ValidateStock ON Cart;")
     conn.commit()
-    
-    # Load Users
+
     print("Loading users...")
     with open('users.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -59,8 +56,7 @@ try:
             count += len(batch)
         
         print(f"Loaded {count} users successfully!")
-    
-    # Load Admins
+
     print("Loading admins...")
     with open('admins.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -83,8 +79,7 @@ try:
         )
         conn.commit()
         print(f"Loaded {len(batch)} admins successfully!")
-    
-    # Load Cart
+
     print("Loading cart items...")
     with open('cart.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -117,8 +112,7 @@ try:
             count += len(batch)
         
         print(f"Loaded {count} cart items successfully!")
-        
-    # Re-enable cart validation trigger
+
     print("Re-enabling cart validation trigger...")
     cursor.execute("ENABLE TRIGGER trg_InsteadOfCart_ValidateStock ON Cart;")
     conn.commit()

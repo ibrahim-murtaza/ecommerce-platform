@@ -1,7 +1,6 @@
 import pyodbc
 import csv
 
-# Database connection
 conn_str = (
     'DRIVER={ODBC Driver 17 for SQL Server};'
     'SERVER=localhost,1433;'
@@ -14,13 +13,11 @@ try:
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     print("Connected to database successfully!")
-    
-    # Disable trigger that updates stock (to speed up bulk insert)
+
     print("Disabling stock update trigger...")
     cursor.execute("DISABLE TRIGGER trg_AfterOrderItem_UpdateStock ON OrderItem;")
     conn.commit()
-    
-    # Load Orders
+
     print("Loading orders...")
     with open('orders.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -56,8 +53,7 @@ try:
             count += len(batch)
         
         print(f"Loaded {count} orders successfully!")
-    
-    # Load Order Items
+
     print("Loading order items...")
     with open('order_items.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -91,8 +87,7 @@ try:
             count += len(batch)
         
         print(f"Loaded {count} order items successfully!")
-    
-    # Re-enable trigger
+
     print("Re-enabling stock update trigger...")
     cursor.execute("ENABLE TRIGGER trg_AfterOrderItem_UpdateStock ON OrderItem;")
     conn.commit()

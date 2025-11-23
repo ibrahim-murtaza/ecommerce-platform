@@ -2,7 +2,6 @@ import csv
 import random
 from datetime import datetime, timedelta
 
-# Sample data for realistic names
 first_names = [
     "John", "Jane", "Michael", "Sarah", "David", "Emily", "Chris", "Lisa", "Daniel", "Ashley",
     "James", "Jessica", "Robert", "Amanda", "William", "Melissa", "Richard", "Jennifer", "Joseph", "Laura",
@@ -31,26 +30,21 @@ def generate_users(num_users=10000):
             first_name = random.choice(first_names)
             last_name = random.choice(last_names)
             email = f"{first_name.lower()}.{last_name.lower()}{i}@email.com"
-            
-            # Simple password hash (in production, use proper hashing)
+
             password_hash = f"hash_{random.randint(100000, 999999)}"
-            
-            # Generate phone number
+
             phone = f"+1-{random.randint(200, 999)}-{random.randint(100, 999)}-{random.randint(1000, 9999)}"
-            
-            # Generate address
+
             street_num = random.randint(1, 9999)
             street_names = ["Main St", "Oak Ave", "Maple Dr", "Cedar Ln", "Elm St", "Park Ave"]
             address = f"{street_num} {random.choice(street_names)}"
             
             city = random.choice(cities)
             postal_code = f"{random.randint(10000, 99999)}"
-            
-            # Random date in the past 2 years
+
             days_ago = random.randint(0, 730)
             date_joined = (datetime.now() - timedelta(days=days_ago)).strftime('%Y-%m-%d %H:%M:%S')
-            
-            # 98% users are active
+
             is_active = 1 if random.random() < 0.98 else 0
             
             writer.writerow([email, password_hash, first_name, last_name, phone, 

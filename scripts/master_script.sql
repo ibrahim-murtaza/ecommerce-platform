@@ -9,9 +9,6 @@ PRINT 'STARTING DATABASE SETUP';
 PRINT '========================================';
 GO
 
--- =============================================
--- STEP 0: DROP EXISTING DATABASE
--- =============================================
 
 PRINT 'Dropping existing database if present...';
 GO
@@ -31,9 +28,6 @@ BEGIN
 END
 GO
 
--- =============================================
--- STEP 1: CREATE DATABASE
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -50,9 +44,6 @@ GO
 PRINT 'Database created successfully!';
 GO
 
--- =============================================
--- STEP 2: CREATE TABLES
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -60,7 +51,6 @@ PRINT 'STEP 2: CREATING TABLES';
 PRINT '========================================';
 GO
 
--- User table
 CREATE TABLE [User] (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     Email VARCHAR(255) NOT NULL UNIQUE,
@@ -75,7 +65,6 @@ CREATE TABLE [User] (
     IsActive BIT DEFAULT 1
 );
 
--- Category table
 CREATE TABLE Category (
     CategoryID INT PRIMARY KEY IDENTITY(1,1),
     CategoryName VARCHAR(100) NOT NULL UNIQUE,
@@ -83,7 +72,6 @@ CREATE TABLE Category (
     IsActive BIT DEFAULT 1
 );
 
--- Product table
 CREATE TABLE Product (
     ProductID INT PRIMARY KEY IDENTITY(1,1),
     CategoryID INT NOT NULL,
@@ -98,7 +86,6 @@ CREATE TABLE Product (
         REFERENCES Category(CategoryID)
 );
 
--- Cart table
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -111,7 +98,6 @@ CREATE TABLE Cart (
         REFERENCES Product(ProductID)
 );
 
--- Admin table
 CREATE TABLE Admin (
     AdminID INT PRIMARY KEY IDENTITY(1,1),
     Email VARCHAR(255) NOT NULL UNIQUE,
@@ -126,9 +112,7 @@ CREATE TABLE Admin (
 PRINT 'Tables created successfully!';
 GO
 
--- =============================================
--- STEP 3: CREATE PARTITIONED TABLES
--- =============================================
+
 
 PRINT '';
 PRINT '========================================';
@@ -139,7 +123,6 @@ GO
 PRINT 'Creating Partition Function...';
 GO
 
--- This creates 3 partitions based on OrderDate:
 CREATE PARTITION FUNCTION pf_OrderDate (DATETIME)
 AS RANGE RIGHT FOR VALUES ('2025-01-01', '2026-01-01');
 GO
@@ -147,8 +130,7 @@ GO
 PRINT 'Creating Partition Scheme...';
 GO
 
--- Create Partition Scheme
--- Maps all partitions to PRIMARY filegroup
+
 CREATE PARTITION SCHEME ps_OrderDate
 AS PARTITION pf_OrderDate
 ALL TO ([PRIMARY]);
@@ -157,8 +139,6 @@ GO
 PRINT 'Creating Partitioned Order Table...';
 GO
 
--- Create Order table WITH partitioning
--- Note: Primary key MUST include the partition key (OrderDate)
 CREATE TABLE [Order] (
     OrderID INT IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -178,8 +158,6 @@ GO
 PRINT 'Creating Partitioned OrderItem Table...';
 GO
 
--- Create OrderItem table WITH partitioning
--- OrderDate column added to align with Order table partition key
 CREATE TABLE OrderItem (
     OrderItemID INT IDENTITY(1,1),
     OrderID INT NOT NULL,
@@ -198,9 +176,6 @@ GO
 PRINT 'Partitioned tables created successfully!';
 GO
 
--- =============================================
--- STEP 4: CREATE VIEWS
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -262,9 +237,6 @@ GO
 PRINT 'Views created successfully!';
 GO
 
--- =============================================
--- STEP 5: CREATE INDEXES
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -299,9 +271,6 @@ GO
 PRINT 'Indexes created successfully!';
 GO
 
--- =============================================
--- STEP 6: CREATE FUNCTIONS
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -364,9 +333,6 @@ GO
 PRINT 'Functions created successfully!';
 GO
 
--- =============================================
--- STEP 7: CREATE TRIGGERS
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -448,9 +414,6 @@ GO
 PRINT 'Triggers created successfully!';
 GO
 
--- =============================================
--- STEP 8: CREATE STORED PROCEDURES
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -568,9 +531,6 @@ GO
 PRINT 'Stored Procedures created successfully!';
 GO
 
--- =============================================
--- STEP 9: CTE DEMONSTRATIONS
--- =============================================
 
 PRINT '';
 PRINT '========================================';
@@ -581,9 +541,6 @@ PRINT 'Example queries can be run after data is loaded.';
 PRINT 'See 09_ctes.sql for CTE examples.';
 GO
 
--- =============================================
--- COMPLETION
--- =============================================
 
 PRINT '';
 PRINT '========================================';

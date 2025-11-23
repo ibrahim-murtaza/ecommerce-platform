@@ -2,7 +2,7 @@ import csv
 import random
 from datetime import datetime, timedelta
 
-# Product name templates
+
 product_templates = [
     "Premium",
     "Deluxe",
@@ -69,30 +69,23 @@ def generate_products(num_products=100000):
         for i in range(1, num_products + 1):
             category_id = random.randint(1, 50)
 
-            # Generate product name
             template = random.choice(product_templates)
             product_type = random.choice(product_types)
             product_name = f"{template} {product_type} {i}"
 
-            # Generate description
             description = f"High-quality {product_type.lower()} with excellent features and durability"
 
-            # Generate realistic price (between $5 and $9999)
             price = round(random.uniform(5.00, 9999.99), 2)
 
-            # Generate stock quantity (0-1000)
             stock = random.randint(0, 1000)
 
-            # Generate image URL
             image_url = f"https://example.com/images/product_{i}.jpg"
 
-            # Generate random date in the past year
             days_ago = random.randint(0, 365)
             date_added = (datetime.now() - timedelta(days=days_ago)).strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
 
-            # 95% products are active
             is_active = 1 if random.random() < 0.95 else 0
 
             writer.writerow(
