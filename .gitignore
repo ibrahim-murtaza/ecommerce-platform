@@ -1,9 +1,20 @@
+# IDE
 .vscode/
+.vs/
+.idea/
+
+# OS
 .DS_Store
 Thumbs.db
-**/appsettings.json
-**/connectionstrings.config
+
+# Build outputs
 bin/
 obj/
-*.dll
-*.exe
+
+# User-specific
+*.user
+*.suo
+
+# Secrets (if you create these later)
+appsettings.Development.json
+connectionstrings.config

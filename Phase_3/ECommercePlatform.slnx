@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ECommerce.BLL/ECommerce.BLL.csproj" />
+  <Project Path="ECommerce.DAL/ECommerce.DAL.csproj" />
+  <Project Path="ECommerce.Factory/ECommerce.Factory.csproj" />
+  <Project Path="ECommerce.Models/ECommerce.Models.csproj" />
+  <Project Path="ECommerce.UI/ECommerce.UI.csproj" />
+</Solution>
