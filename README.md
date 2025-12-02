@@ -7,7 +7,7 @@
 - Muhammad Arsalan Amjad - 26100003
 
 ## Project Overview
-A comprehensive e-commerce database system built with Microsoft SQL Server, featuring partitioned tables, advanced SQL features, and over 1 million rows of data. Developed for CS 340 - Databases course at LUMS.
+A comprehensive e-commerce database system built with Microsoft SQL Server, featuring partitioned tables, advanced SQL features, over 1 million rows of data, and a full .NET application with dual Business Logic Layer implementations (LINQ vs Stored Procedures) using the Factory Design Pattern. Developed for CS 340 - Databases course at LUMS.
 
 ## Project Structure
 ```
@@ -36,14 +36,27 @@ ecommerce-platform/
 │       ├── generate_orders.py
 │       ├── generate_order_items.py
 │       └── load_orders.py
-└── src/
+└── Phase_3/
+    ├── ECommerce.Models/           # Entity models (User, Product, Order, etc.)
+    ├── ECommerce.DAL/              # Data Access Layer with EF Core
+    ├── ECommerce.BLL/              # Business Logic Layer
+    │   ├── Interfaces/             # Service interfaces
+    │   ├── LinqImplementation/     # EF Core + LINQ implementations
+    │   └── SPImplementation/       # Stored Procedure implementations
+    ├── ECommerce.Factory/          # Factory pattern for BLL selection
+    └── ECommerce.UI/               # Avalonia UI application
 ```
 
 ## Prerequisites
 - Docker Desktop (for SQL Server container)
+- .NET 9 SDK
 - Python 3.8+
 - pyodbc library: `pip install pyodbc`
 - VS Code with SQL Server (mssql) extension
+
+---
+
+# Phase 1 & 2: Database Implementation
 
 ## Database Setup
 
@@ -231,42 +244,284 @@ Multiple CTE examples in `09_ctes.sql`:
 - Status distribution: 65% Delivered, 15% Shipped, 10% Processing, 5% Pending, 5% Cancelled
 - Order items aligned with order dates for partitioning
 
+---
+
+# Phase 3: Application Development
+
+## Overview
+Phase 3 implements a complete .NET application with Avalonia UI that demonstrates the Factory Design Pattern by supporting two interchangeable Business Logic Layer implementations: LINQ (using Entity Framework Core) and Stored Procedures (using raw SQL).
+
+## Technology Stack
+- **Framework:** .NET 9 (cross-platform)
+- **UI:** Avalonia UI 11.3.9
+- **ORM:** Entity Framework Core 9.0
+- **Database:** Microsoft SQL Server (Docker)
+- **Pattern:** Factory Design Pattern
+
+## Project Architecture
+
+### Layered Architecture
+```
+ECommerce.UI (Presentation)
+    ↓
+ECommerce.Factory (Factory Pattern)
+    ↓
+ECommerce.BLL (Business Logic - Interfaces + 2 Implementations)
+    ↓
+ECommerce.DAL (Data Access with EF Core)
+    ↓
+ECommerce.Models (Entity Models)
+    ↓
+SQL Server Database
+```
+
+### Project Components
+
+#### 1. ECommerce.Models
+Entity models representing database tables:
+- `User.cs` - Customer accounts
+- `Product.cs` - Product catalog
+- `Category.cs` - Product categories
+- `Order.cs` - Customer orders (partitioned)
+- `OrderItem.cs` - Order line items (partitioned)
+- `Cart.cs` - Shopping cart items
+- `Admin.cs` - Admin accounts
+
+#### 2. ECommerce.DAL (Data Access Layer)
+- `ECommerceContext.cs` - EF Core DbContext
+- Configures composite keys for partitioned tables
+- Connection string management
+- Database connection: `Server=127.0.0.1,1433;Database=ECommerceDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;`
+
+#### 3. ECommerce.BLL (Business Logic Layer)
+
+**Interfaces** (5 total):
+- `IProductService` - Product CRUD, filtering, low stock alerts
+- `IUserService` - User management, authentication
+- `IOrderService` - Order processing, status updates
+- `ICartService` - Cart operations, total calculation
+- `ICategoryService` - Category management
+
+**LINQ Implementation** (`LinqImplementation/`):
+- Uses Entity Framework Core
+- LINQ queries for all operations
+- Manual transaction management
+- Example: `ProductServiceLINQ.cs`, `UserServiceLINQ.cs`, etc.
+
+**Stored Procedure Implementation** (`SPImplementation/`):
+- Uses raw SQL and ExecuteSqlRaw
+- Calls stored procedures (`sp_PlaceOrder`, `sp_UpdateOrderStatus`)
+- Uses database functions (`CalculateCartTotal`, `CheckStockAvailability`)
+- Uses views (`vw_LowStockProducts`, `vw_ActiveProducts`)
+- Example: `ProductServiceSP.cs`, `UserServiceSP.cs`, etc.
+
+#### 4. ECommerce.Factory
+**Factory Pattern Implementation:**
+```csharp
+public enum BLLType { LINQ, StoredProcedure }
+
+public static class BLLFactory
+{
+    public static IProductService GetProductService(BLLType type)
+    {
+        var context = new ECommerceContext();
+        return type == BLLType.LINQ 
+            ? new ProductServiceLINQ(context)
+            : new ProductServiceSP(context);
+    }
+    // Similar methods for other services...
+}
+```
+
+#### 5. ECommerce.UI
+Avalonia-based user interface (cross-platform).
+
+## Setup and Running
+
+### Prerequisites
+1. **Start SQL Server Docker Container:**
+   ```bash
+   docker start sqlserver
+   ```
+   
+   Or create new container:
+   ```bash
+   docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrong!Passw0rd" -p 1433:1433 --name sqlserver -v sqlserverdata:/var/opt/mssql -d mcr.microsoft.com/mssql/server
+   ```
+
+2. **Install .NET 9 SDK:**
+   - Download from https://dotnet.microsoft.com/download
+
+3. **Verify Database:**
+   - Ensure Phase 1 & 2 database is set up with all data
+
+### Build and Run
+
+```bash
+# Navigate to Phase_3 directory
+cd Phase_3
+
+# Restore dependencies
+dotnet restore
+
+# Build solution
+dotnet build
+
+# Run application
+cd ECommerce.UI
+dotnet run
+```
+
+## Using the Application
+
+### Accessing Services via Factory
+
+Always use the Factory pattern to get service instances:
+
+```csharp
+using ECommerce.Factory;
+
+// Get LINQ implementation
+var productService = BLLFactory.GetProductService(BLLType.LINQ);
+var products = productService.GetAllProducts();
+
+// Get Stored Procedure implementation
+var orderService = BLLFactory.GetOrderService(BLLType.StoredProcedure);
+orderService.PlaceOrder(userId, address, city, postal);
+
+// Switch at runtime
+BLLType currentType = BLLType.LINQ;
+var cartService = BLLFactory.GetCartService(currentType);
+```
+
+### Available Service Methods
+
+**IProductService:**
+- `GetAllProducts()` - Retrieve all active products
+- `GetProductById(int id)` - Get single product
+- `GetProductsByCategory(int categoryId)` - Filter by category
+- `AddProduct(Product)` / `UpdateProduct(Product)` / `DeleteProduct(int id)`
+- `GetLowStockProducts()` - Uses `vw_LowStockProducts` view
+
+**IUserService:**
+- `GetAllUsers()` / `GetUserById(int id)` / `GetUserByEmail(string email)`
+- `AddUser(User)` / `UpdateUser(User)` / `DeleteUser(int id)`
+- `ValidateUserCredentials(string email, string passwordHash)` - Login
+
+**IOrderService:**
+- `GetAllOrders()` / `GetOrderById(int orderId, DateTime orderDate)`
+- `GetOrdersByUserId(int userId)` / `GetOrdersByStatus(string status)`
+- `PlaceOrder(...)` - Uses `sp_PlaceOrder` stored procedure (SP version)
+- `UpdateOrderStatus(...)` - Uses `sp_UpdateOrderStatus` stored procedure (SP version)
+- `GetTotalRevenueByDateRange(DateTime start, DateTime end)`
+
+**ICartService:**
+- `GetCartByUserId(int userId)`
+- `AddToCart(int userId, int productId, int quantity)` - Validates stock
+- `UpdateCartItemQuantity(int cartId, int newQuantity)`
+- `RemoveFromCart(int cartId)` / `ClearCart(int userId)`
+- `GetCartTotal(int userId)` - Uses `CalculateCartTotal` function (SP version)
+
+**ICategoryService:**
+- `GetAllCategories()` / `GetCategoryById(int id)` / `GetActiveCategories()`
+- `AddCategory(Category)` / `UpdateCategory(Category)` / `DeleteCategory(int id)`
+
+### Key Differences: LINQ vs Stored Procedures
+
+| Feature | LINQ Implementation | SP Implementation |
+|---------|-------------------|-------------------|
+| Query Method | EF Core + LINQ | Raw SQL + ExecuteSqlRaw |
+| Transactions | Manual (BeginTransaction) | Built into stored procedures |
+| Stock Updates | Manual in code | Automatic via triggers |
+| Cart Total | LINQ Sum calculation | `CalculateCartTotal` function |
+| Order Placement | Multi-step LINQ | `sp_PlaceOrder` procedure |
+| Views | FromSqlRaw on views | Direct SELECT from views |
+| Performance | Good for simple queries | Better for complex operations |
+
+## SQL Server Features Usage
+
+The application leverages all Phase 2 database features:
+
+1. **Partitioned Tables:** Order and OrderItem queries work with partitioned data
+2. **Views:** `GetLowStockProducts()` uses `vw_LowStockProducts`
+3. **Indexes:** All queries benefit from indexes (CategoryID, Email, Active/Stock)
+4. **Functions:** `GetCartTotal()` calls `CalculateCartTotal` function (SP version)
+5. **Triggers:** 
+   - Stock auto-updates on order (SP version relies on trigger)
+   - Cart validation trigger (bypassed in LINQ, used in SP)
+6. **Stored Procedures:** `PlaceOrder()` and `UpdateOrderStatus()` use stored procedures (SP version)
+
+## Testing
+
+### Manual Testing
+The application has been tested with:
+- ✅ Database connection successful
+- ✅ LINQ implementation: Retrieved 100,000 products, 50 categories
+- ✅ SP implementation: Retrieved 94,967 active products, 50 categories
+- ✅ Factory pattern working correctly
+- ✅ Both implementations functional
+
+### To Test Services:
+```csharp
+// Test LINQ
+var productServiceLinq = BLLFactory.GetProductService(BLLType.LINQ);
+var products = productServiceLinq.GetAllProducts();
+Console.WriteLine($"LINQ found {products.Count} products");
+
+// Test SP
+var productServiceSp = BLLFactory.GetProductService(BLLType.StoredProcedure);
+var productsSp = productServiceSp.GetAllProducts();
+Console.WriteLine($"SP found {productsSp.Count} products");
+```
+
 ## Troubleshooting
 
-### Trigger Issues During Data Load
-If you encounter trigger validation errors when loading cart data:
+### Common Issues
 
-1. Disable the cart validation trigger:
-   ```sql
-   USE ECommerceDB;
-   GO
-   DISABLE TRIGGER trg_InsteadOfCart_ValidateStock ON Cart;
-   GO
-   ```
+**Issue:** "Server was not found or was not accessible"
+**Solution:** Start Docker container: `docker start sqlserver`
 
-2. Run the data loading script
+**Issue:** Build errors about nullable reference types
+**Solution:** Already fixed with `!` operators and null coalescing
 
-3. Re-enable the trigger:
-   ```sql
-   ENABLE TRIGGER trg_InsteadOfCart_ValidateStock ON Cart;
-   GO
-   ```
+**Issue:** Different row counts between LINQ and SP
+**Solution:** Expected behavior - SP version filters by `IsActive = 1`
 
-**Note:** The `load_users_cart.py` script handles this automatically.
+**Issue:** Connection string errors
+**Solution:** Verify password matches Docker container in `ECommerceContext.cs`
 
-### Connection Issues
-If Python scripts fail to connect:
-- Verify SQL Server container is running: `docker ps`
-- Check connection string server name (usually `localhost` or `localhost,1433`)
-- Verify SA password matches your Docker container setup
-- Ensure ODBC Driver 17 for SQL Server is installed
+**Issue:** EF Core errors about composite keys
+**Solution:** Order and OrderItem use composite keys (OrderID + OrderDate) for partitioning
 
-### Performance Tips
-- Data loading takes approximately 15-20 minutes for 1M+ rows
-- Triggers are temporarily disabled during bulk inserts for performance
-- Use batch sizes of 1000-5000 rows for optimal performance
+### Build Issues
+If you get `.NET 10.0 not supported` error:
+- All projects should target `net9.0` in `.csproj` files
+- EF Core packages should be version `9.0.0`
 
-## Testing Queries
+## Phase 3 Work Distribution
+- **Arsalan:** Project structure, Models, DAL setup, initial configuration
+- **Ibrahim:** All BLL interfaces and implementations (LINQ + SP), Factory pattern
+- **Ahsan:** UI development (in progress)
+- **Jibran:** Integration testing (in progress)
+
+## Phase 3 Implementation Notes
+
+### Key Design Decisions
+1. **Factory Pattern:** Enables runtime switching between LINQ and SP implementations
+2. **Interface Segregation:** Each service has a dedicated interface
+3. **Consistent API:** Both implementations provide identical functionality
+4. **Cross-Platform:** .NET 9 + Avalonia supports Windows, Mac, Linux
+5. **Connection Management:** Each service instantiation gets a new DbContext
+
+### Testing Strategy
+- Unit test individual service methods
+- Integration test complete workflows
+- Runtime switching validation
+- Performance comparison between LINQ and SP
+
+---
+
+# Testing Queries
 
 ### View All Products in a Category
 ```sql
@@ -314,22 +569,26 @@ WITH UserOrders AS (
 SELECT * FROM UserOrders ORDER BY OrderDate DESC;
 ```
 
-## Phase 2 Implementation Notes
+---
 
-### Work Distribution
-- **Arsalan:** Table Partitioning (Order, OrderItem)
-- **Ahsan:** Views, Indexes, Category/Product data generation
-- **Jibran:** Functions, Triggers, User/Admin/Cart data generation
-- **Ibrahim:** Stored Procedures, CTEs, Order/OrderItem data generation, Integration
+# Summary
 
-### Key Design Decisions
-1. **Partitioning Strategy:** Date-based partitioning on orders for improved query performance on time-range queries
-2. **Composite Primary Keys:** Required for partitioned tables (OrderID + OrderDate)
-3. **Trigger Management:** Automatic disable/enable during bulk loads for performance
-4. **Data Generation:** Python + CSV approach for speed and reliability over pure SQL
-5. **Stock Management:** Trigger-based automatic stock updates on order placement
+## Phase 1 & 2 (Database): Complete ✅
+- SQL Server database with 1M+ rows
+- Partitioned tables (Order, OrderItem)
+- Views, Indexes, Functions, Triggers, Stored Procedures, CTEs
+- Comprehensive data generation scripts
 
-### Normalization
+## Phase 3 (Application): Core Complete ✅
+- .NET 9 + Avalonia UI application
+- Factory Design Pattern implemented
+- Dual BLL: LINQ (EF Core) + Stored Procedures
+- 5 service interfaces with full implementations
+- Database integration verified
+- UI development in progress
+- Integration testing in progress
+
+## Normalization
 Database is normalized to 3NF:
 - No repeating groups
 - All non-key attributes fully dependent on primary key
