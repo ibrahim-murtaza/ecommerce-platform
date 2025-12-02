@@ -11,10 +11,10 @@ namespace ECommerce.Models
 
         [Required]
         [MaxLength(100)]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         [MaxLength(20)]
-        public string Role { get; set; }
+        public string Role { get; set; } = null!;
 
         public bool IsActive { get; set; }
     }

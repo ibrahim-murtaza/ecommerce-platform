@@ -11,24 +11,24 @@ namespace ECommerce.Models
 
         [Required]
         [MaxLength(100)]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         [Required]
-        public string PasswordHash { get; set; }
+        public string PasswordHash { get; set; } = null!;
 
         [MaxLength(50)]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = null!;
 
         [MaxLength(50)]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = null!;
 
-        public string Address { get; set; }
-        
+        public string Address { get; set; } = null!;
+
         [MaxLength(50)]
-        public string City { get; set; }
+        public string City { get; set; } = null!;
 
         // Navigation properties (One User has many Orders/Carts)
-        public virtual ICollection<Order> Orders { get; set; }
-        public virtual ICollection<Cart> Carts { get; set; }
+        public virtual ICollection<Order> Orders { get; set; } = null!;
+        public virtual ICollection<Cart> Carts { get; set; } = null!;
     }
 }

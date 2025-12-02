@@ -1,6 +1,7 @@
 using ECommerce.BLL.Interfaces;
-// You will need to add references to the specific BLL implementations 
-// once your teammates create them (ECommerce.BLL.LinqImplementation, etc.)
+using ECommerce.BLL.LinqImplementation;
+using ECommerce.BLL.SPImplementation;
+using ECommerce.DAL;
 
 namespace ECommerce.Factory
 {
@@ -12,23 +13,76 @@ namespace ECommerce.Factory
 
     public static class BLLFactory
     {
-        // Currently returning NULL because teammates haven't built the classes yet.
-        // This acts as the placeholder skeleton.
-        
+        // Factory methods return actual service instances based on BLLType
+
         public static IProductService GetProductService(BLLType type)
         {
+            var context = new ECommerceContext();
+
             if (type == BLLType.LINQ)
             {
-                // return new ProductServiceLINQ(); 
-                return null; 
+                return new ProductServiceLINQ(context);
             }
             else
             {
-                // return new ProductServiceSP();
-                return null;
+                return new ProductServiceSP(context);
             }
         }
 
-        // Repeat for User, Order, Cart services...
+        public static IUserService GetUserService(BLLType type)
+        {
+            var context = new ECommerceContext();
+
+            if (type == BLLType.LINQ)
+            {
+                return new UserServiceLINQ(context);
+            }
+            else
+            {
+                return new UserServiceSP(context);
+            }
+        }
+
+        public static IOrderService GetOrderService(BLLType type)
+        {
+            var context = new ECommerceContext();
+
+            if (type == BLLType.LINQ)
+            {
+                return new OrderServiceLINQ(context);
+            }
+            else
+            {
+                return new OrderServiceSP(context);
+            }
+        }
+
+        public static ICartService GetCartService(BLLType type)
+        {
+            var context = new ECommerceContext();
+
+            if (type == BLLType.LINQ)
+            {
+                return new CartServiceLINQ(context);
+            }
+            else
+            {
+                return new CartServiceSP(context);
+            }
+        }
+
+        public static ICategoryService GetCategoryService(BLLType type)
+        {
+            var context = new ECommerceContext();
+
+            if (type == BLLType.LINQ)
+            {
+                return new CategoryServiceLINQ(context);
+            }
+            else
+            {
+                return new CategoryServiceSP(context);
+            }
+        }
     }
 }

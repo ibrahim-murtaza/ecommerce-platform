@@ -17,7 +17,8 @@ namespace ECommerce.DAL
             {
                 // IMPORTANT: Replace 'YourStrong!Passw0rd' with your actual Docker SA password
                 // TrustServerCertificate=True is REQUIRED for Docker containers
-                optionsBuilder.UseSqlServer("Server=127.0.0.1,1433;Database=ECommerceDB;User Id=sa;Password=StrongPass!2025;TrustServerCertificate=True;");            }
+                optionsBuilder.UseSqlServer("Server=127.0.0.1,1433;Database=ECommerceDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
+            }
         }
 
         public DbSet<User> Users { get; set; }

@@ -22,9 +22,9 @@ namespace ECommerce.Models
 
         // Navigation Properties
         [ForeignKey("ProductID")]
-        public virtual Product Product { get; set; }
+        public virtual Product Product { get; set; } = null!;
         
         [ForeignKey("OrderID, OrderDate")] // Composite Foreign Key
-        public virtual Order Order { get; set; }
+        public virtual Order Order { get; set; } = null!;
     }
 }

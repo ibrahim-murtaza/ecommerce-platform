@@ -13,7 +13,7 @@ namespace ECommerce.Models
 
         [Required]
         [MaxLength(100)]
-        public string ProductName { get; set; }
+        public string ProductName { get; set; } = null!;
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
@@ -21,10 +21,10 @@ namespace ECommerce.Models
         public int StockQuantity { get; set; }
 
         public string? ImageURL { get; set; }
-        
+
         public bool IsActive { get; set; }
 
         // Navigation Property
-        public virtual Category Category { get; set; }
+        public virtual Category Category { get; set; } = null!;
     }
 }
