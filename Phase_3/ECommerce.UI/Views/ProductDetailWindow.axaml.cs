@@ -9,12 +9,16 @@ namespace ECommerce.UI.Views
 {
     public partial class ProductDetailWindow : Window
     {
-        private readonly Product _product;
+        private readonly Product _product = null!;
         private int _quantity = 1;
 
-        public ProductDetailWindow(Product product)
+        public ProductDetailWindow()
         {
             InitializeComponent();
+        }
+
+        public ProductDetailWindow(Product product) : this()
+        {
             _product = product;
             DisplayProductDetails();
         }

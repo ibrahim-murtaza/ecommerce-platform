@@ -13,7 +13,7 @@ namespace ECommerce.UI.Views
         public LoginWindow()
         {
             InitializeComponent();
-            UpdateBLLTypeDisplay();
+            UpdateBLLTypeDisplay(); // ← UNCOMMENT THIS
         }
 
         private void UpdateBLLTypeDisplay()
@@ -44,16 +44,12 @@ namespace ECommerce.UI.Views
                 }
 
                 var userService = BLLFactory.GetUserService(BLLManager.CurrentBLLType);
-                
-                // For demo purposes, we'll use a simple password validation
-                // In production, you'd hash the password and validate properly
                 var user = userService.GetUserByEmail(email);
-                
+
                 if (user != null && user.PasswordHash == password)
                 {
                     SessionManager.CurrentUser = user;
-                    
-                    // Open main window
+
                     var mainWindow = new MainWindow();
                     mainWindow.Show();
                     this.Close();

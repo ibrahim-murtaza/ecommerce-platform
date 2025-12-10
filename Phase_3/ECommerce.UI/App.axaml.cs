@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -14,12 +15,17 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        Console.WriteLine("App starting...");
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Start with LoginWindow instead of MainWindow
+            Console.WriteLine("Creating LoginWindow...");
             desktop.MainWindow = new LoginWindow();
+            Console.WriteLine("LoginWindow created!");
         }
 
+        Console.WriteLine("Calling base method...");
         base.OnFrameworkInitializationCompleted();
+        Console.WriteLine("App started!");
     }
 }

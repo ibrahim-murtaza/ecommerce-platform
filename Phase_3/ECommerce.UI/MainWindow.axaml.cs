@@ -75,7 +75,9 @@ public partial class MainWindow : Window
             }
             else
             {
-                _allProducts = productService.GetAllProducts();
+                _allProducts = productService.GetAllProducts()
+                    .Take(100)  // ← ADD THIS LINE - only load first 100 products
+                    .ToList();
             }
 
             // Filter only active products
@@ -115,7 +117,7 @@ public partial class MainWindow : Window
 
         var selectedCategoryName = CategoryComboBox.SelectedItem as string;
         var category = _allCategories.FirstOrDefault(c => c.CategoryName == selectedCategoryName);
-        
+
         if (category != null)
         {
             LoadProducts(category.CategoryID);
