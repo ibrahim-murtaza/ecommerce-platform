@@ -6,7 +6,7 @@ conn_str = (
     'SERVER=localhost,1433;'
     'DATABASE=ECommerceDB;'
     'UID=sa;'
-    'PWD=YourStrong!Passw0rd;'
+    'PWD=YourStrong;'
 )
 
 try:

@@ -1,0 +1,284 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:ECommerce.Models;assembly=ECommerce.Models"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+        x:Class="ECommerce.UI.Views.AdminDashboardWindow"
+        Title="Admin Dashboard"
+        Width="1000" Height="700"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#34495E" Padding="20">
+            <TextBlock Text="📊 Admin Dashboard" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       Foreground="White"/>
+        </Border>
+
+        <!-- Content -->
+        <TabControl Grid.Row="1" Margin="20">
+            <!-- Low Stock Products Tab -->
+            <TabItem Header="🔴 Low Stock Products">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,10,0,10">
+                        <TextBlock Text="Products with low stock (below threshold)" 
+                                   FontSize="16"
+                                   Margin="0,0,0,10"/>
+                        <Button x:Name="RefreshLowStockButton"
+                                Content="🔄 Refresh"
+                                Click="RefreshLowStockButton_Click"
+                                Padding="15,8"/>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1">
+                        <DataGrid x:Name="LowStockDataGrid"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="All"
+                                  BorderThickness="1"
+                                  BorderBrush="#BDC3C7"
+                                  x:DataType="models:Product">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Product ID" Binding="{Binding ProductID}" Width="100"/>
+                                <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
+                                <DataGridTextColumn Header="Category" Binding="{Binding Category.CategoryName}" Width="150"/>
+                                <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat='${0:F2}'}" Width="100"/>
+                                <DataGridTextColumn Header="Stock" Binding="{Binding StockQuantity}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- Orders Tab -->
+            <TabItem Header="📦 Orders">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,10,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Filter by Status:" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <ComboBox x:Name="OrderStatusComboBox"
+                                      Width="150"
+                                      SelectionChanged="OrderStatusComboBox_SelectionChanged"/>
+                            <Button x:Name="ShowAllOrdersButton"
+                                    Content="Show All Orders"
+                                    Click="ShowAllOrdersButton_Click"
+                                    Margin="10,0,0,0"
+                                    Padding="15,8"/>
+                            <Button x:Name="RefreshOrdersButton"
+                                    Content="🔄 Refresh"
+                                    Click="RefreshOrdersButton_Click"
+                                    Margin="10,0,0,0"
+                                    Padding="15,8"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1">
+                        <DataGrid x:Name="OrdersDataGrid"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="All"
+                                  BorderThickness="1"
+                                  BorderBrush="#BDC3C7"
+                                  x:DataType="models:Order">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Order ID" Binding="{Binding OrderID}" Width="100"/>
+                                <DataGridTextColumn Header="Order Date" Binding="{Binding OrderDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="120"/>
+                                <DataGridTextColumn Header="User ID" Binding="{Binding UserID}" Width="100"/>
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='${0:F2}'}" Width="120"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"/>
+                                <DataGridTextColumn Header="Shipping Address" Binding="{Binding ShippingAddress}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- Revenue Tab -->
+            <TabItem Header="💰 Revenue">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,20,0,20">
+                        <TextBlock Text="Calculate Revenue by Date Range" 
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,20"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="Start Date:" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <DatePicker Grid.Column="1" 
+                                        x:Name="StartDatePicker"
+                                        Margin="0,0,20,0"/>
+
+                            <TextBlock Grid.Column="2" 
+                                       Text="End Date:" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <DatePicker Grid.Column="3" 
+                                        x:Name="EndDatePicker"/>
+
+                            <Button Grid.Column="4"
+                                    x:Name="CalculateRevenueButton"
+                                    Content="Calculate Revenue"
+                                    Click="CalculateRevenueButton_Click"
+                                    Background="#27AE60"
+                                    Foreground="White"
+                                    Padding="20,10"
+                                    Margin="20,0,0,0"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Border Grid.Row="1"
+                            BorderBrush="#27AE60"
+                            BorderThickness="2"
+                            CornerRadius="8"
+                            Padding="30"
+                            Background="#E8F5E9"
+                            HorizontalAlignment="Center"
+                            Margin="0,20,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Total Revenue" 
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,10"/>
+                            <TextBlock x:Name="RevenueTextBlock"
+                                       Text="$0.00"
+                                       FontSize="48"
+                                       FontWeight="Bold"
+                                       Foreground="#27AE60"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="RevenueDateRangeTextBlock"
+                                       FontSize="14"
+                                       Foreground="#666"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Statistics Tab -->
+            <TabItem Header="📈 Statistics">
+                <ScrollViewer>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="System Statistics" 
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,20"/>
+
+                        <Button x:Name="RefreshStatsButton"
+                                Content="🔄 Refresh Statistics"
+                                Click="RefreshStatsButton_Click"
+                                Padding="15,8"
+                                Margin="0,0,0,20"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Total Products -->
+                            <Border Grid.Column="0"
+                                    BorderBrush="#3498DB"
+                                    BorderThickness="2"
+                                    CornerRadius="8"
+                                    Padding="20"
+                                    Margin="0,0,10,0"
+                                    Background="#EBF5FB">
+                                <StackPanel>
+                                    <TextBlock Text="📦 Total Products" 
+                                               FontSize="16"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="TotalProductsTextBlock"
+                                               Text="0"
+                                               FontSize="36"
+                                               FontWeight="Bold"
+                                               Foreground="#3498DB"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,10,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Total Orders -->
+                            <Border Grid.Column="1"
+                                    BorderBrush="#E74C3C"
+                                    BorderThickness="2"
+                                    CornerRadius="8"
+                                    Padding="20"
+                                    Margin="0,0,10,0"
+                                    Background="#FADBD8">
+                                <StackPanel>
+                                    <TextBlock Text="📋 Total Orders" 
+                                               FontSize="16"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="TotalOrdersTextBlock"
+                                               Text="0"
+                                               FontSize="36"
+                                               FontWeight="Bold"
+                                               Foreground="#E74C3C"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,10,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Total Users -->
+                            <Border Grid.Column="2"
+                                    BorderBrush="#9B59B6"
+                                    BorderThickness="2"
+                                    CornerRadius="8"
+                                    Padding="20"
+                                    Background="#F4ECF7">
+                                <StackPanel>
+                                    <TextBlock Text="👥 Total Users" 
+                                               FontSize="16"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="TotalUsersTextBlock"
+                                               Text="0"
+                                               FontSize="36"
+                                               FontWeight="Bold"
+                                               Foreground="#9B59B6"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,10,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

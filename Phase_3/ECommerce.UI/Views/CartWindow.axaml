@@ -1,0 +1,95 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="ECommerce.UI.Views.CartWindow"
+        Title="Shopping Cart"
+        Width="800" Height="600"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2C3E50" Padding="20">
+            <TextBlock Text="🛒 Your Shopping Cart" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       Foreground="White"/>
+        </Border>
+
+        <!-- Cart Items -->
+        <ScrollViewer Grid.Row="1" Margin="20">
+            <StackPanel x:Name="CartItemsPanel">
+                <TextBlock x:Name="EmptyCartTextBlock"
+                           Text="Your cart is empty"
+                           FontSize="18"
+                           Foreground="#95A5A6"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0,50,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Total -->
+        <Border Grid.Row="2" 
+                BorderBrush="#BDC3C7" 
+                BorderThickness="0,1,0,0"
+                Padding="20"
+                Background="#ECF0F1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                           Text="Total:" 
+                           FontSize="24"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" 
+                           x:Name="TotalTextBlock"
+                           Text="$0.00"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#27AE60"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Buttons -->
+        <Border Grid.Row="3" Padding="20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="CheckoutButton"
+                        Content="Proceed to Checkout"
+                        Click="CheckoutButton_Click"
+                        Background="#27AE60"
+                        Foreground="White"
+                        Padding="30,15"
+                        FontSize="16"
+                        Margin="0,0,10,0"/>
+                <Button x:Name="ClearCartButton"
+                        Content="Clear Cart"
+                        Click="ClearCartButton_Click"
+                        Background="#E74C3C"
+                        Foreground="White"
+                        Padding="30,15"
+                        FontSize="16"
+                        Margin="0,0,10,0"/>
+                <Button Content="Continue Shopping"
+                        Click="ContinueShoppingButton_Click"
+                        Background="#95A5A6"
+                        Foreground="White"
+                        Padding="30,15"
+                        FontSize="16"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
