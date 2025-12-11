@@ -42,6 +42,15 @@ namespace ECommerce.DAL
             modelBuilder.Entity<OrderItem>()
                 .HasKey(oi => new { oi.OrderItemID, oi.OrderDate });
 
+            // Configure Cart table to use triggers
+            // This prevents EF from using OUTPUT clause which conflicts with triggers
+            modelBuilder.Entity<Cart>()
+                .ToTable(tb => tb.HasTrigger("trg_InsteadOfCart_ValidateStock"));
+
+            // Configure OrderItem table to use triggers
+            modelBuilder.Entity<OrderItem>()
+                .ToTable(tb => tb.HasTrigger("trg_AfterOrderItem_UpdateStock"));
+
             // Relationships can be configured here if strictly needed, 
             // but EF often infers them from naming conventions.
         }

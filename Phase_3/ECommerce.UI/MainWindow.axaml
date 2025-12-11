@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:ECommerce.Models;assembly=ECommerce.Models"
+        xmlns:local="clr-namespace:ECommerce.UI"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="ECommerce.UI.MainWindow"
         Title="E-Commerce Platform - Products"
@@ -38,7 +39,9 @@
         </Grid.RowDefinitions>
 
         <!-- Header Bar -->
-        <Border Grid.Row="0" Background="#2C3E50" Padding="15">
+        <Border Grid.Row="0" 
+                Background="{DynamicResource SystemAccentColor}" 
+                Padding="15">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -50,12 +53,12 @@
                                Text="Welcome!" 
                                FontSize="18" 
                                FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                                VerticalAlignment="Center"/>
                     <TextBlock x:Name="BLLModeTextBlock"
                                Text="(LINQ Mode)"
                                FontSize="14"
-                               Foreground="#BDC3C7"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                VerticalAlignment="Center"
                                Margin="10,0,0,0"/>
                 </StackPanel>
@@ -64,6 +67,10 @@
                     <Button x:Name="ViewCartButton"
                             Content="🛒 View Cart (0)"
                             Click="ViewCartButton_Click"
+                            Classes="secondary"/>
+                    <Button x:Name="OrdersButton"
+                            Content="📦 My Orders"
+                            Click="OrdersButton_Click"
                             Classes="secondary"/>
                     <Button x:Name="AdminDashboardButton"
                             Content="📊 Admin"
@@ -82,25 +89,30 @@
         </Border>
 
         <!-- Filters -->
-        <Border Grid.Row="1" Background="#ECF0F1" Padding="15">
+        <Border Grid.Row="1" 
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}" 
+                Padding="15">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Filter by Category:" 
+                <TextBlock Text="Search:" 
                            VerticalAlignment="Center" 
                            FontWeight="Bold"
+                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                            Margin="0,0,10,0"/>
+                <TextBox x:Name="SearchTextBox"
+                         Width="250"
+                         Watermark="Search products by name..."
+                         TextChanged="SearchTextBox_TextChanged"/>
+                <TextBlock Text="Category:" 
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                           Margin="20,0,10,0"/>
                 <ComboBox x:Name="CategoryComboBox" 
                           Width="200"
                           SelectionChanged="CategoryComboBox_SelectionChanged"/>
                 <Button x:Name="ShowAllButton"
                         Content="Show All Products"
                         Click="ShowAllButton_Click"
-                        Margin="10,0,0,0"
-                        Padding="15,5"/>
-                <Button x:Name="ShowLowStockButton"
-                        Content="🔴 Low Stock Products"
-                        Click="ShowLowStockButton_Click"
-                        Background="#FF9800"
-                        Foreground="White"
                         Margin="10,0,0,0"
                         Padding="15,5"/>
                 <Button x:Name="RefreshButton"
@@ -111,8 +123,8 @@
             </StackPanel>
         </Border>
 
-        <!-- Products Grid -->
-        <ScrollViewer Grid.Row="2">
+        <!-- Products Grid for Regular Users -->
+        <ScrollViewer Grid.Row="2" x:Name="UserProductsScrollViewer">
             <ItemsControl x:Name="ProductsItemsControl" Margin="15">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -121,23 +133,24 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="models:Product">
-                        <Border BorderBrush="#BDC3C7" 
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
                                 BorderThickness="1" 
                                 CornerRadius="8"
                                 Padding="15"
                                 Margin="10"
                                 Width="280"
-                                Background="White">
+                                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
                             <StackPanel>
                                 <TextBlock Text="{Binding ProductName}" 
                                            FontSize="18" 
                                            FontWeight="Bold"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,0,0,10"/>
                                 
                                 <TextBlock Text="{Binding Category.CategoryName, StringFormat='Category: {0}'}" 
                                            FontSize="12"
-                                           Foreground="#7F8C8D"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                            Margin="0,0,0,5"/>
                                 
                                 <TextBlock Text="{Binding Price, StringFormat='${0:F2}'}" 
@@ -148,23 +161,92 @@
                                 
                                 <TextBlock Text="{Binding StockQuantity, StringFormat='In Stock: {0}'}" 
                                            FontSize="14"
-                                           Margin="0,0,0,5"/>
+                                           Margin="0,0,0,5">
+                                    <TextBlock.Foreground>
+                                        <Binding Path="StockQuantity">
+                                            <Binding.Converter>
+                                                <local:StockToColorConverter/>
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Foreground>
+                                </TextBlock>
                                 
                                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                     <Button Content="View Details"
                                             Tag="{Binding ProductID}"
                                             Click="ViewDetailsButton_Click"
-                                            Background="#3498DB"
-                                            Foreground="White"
+                                            Classes="secondary"
                                             Padding="10,5"
                                             Margin="0,0,5,0"/>
                                     <Button Content="Add to Cart"
                                             Tag="{Binding ProductID}"
                                             Click="AddToCartButton_Click"
-                                            Background="#27AE60"
-                                            Foreground="White"
-                                            Padding="10,5"/>
+                                            Classes="primary"
+                                            Padding="10,5">
+                                        <Button.IsEnabled>
+                                            <Binding Path="StockQuantity">
+                                                <Binding.Converter>
+                                                    <local:StockToEnabledConverter/>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </Button.IsEnabled>
+                                    </Button>
                                 </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- Products Grid for Admins (View Only - No Buttons) -->
+        <ScrollViewer Grid.Row="2" x:Name="AdminProductsScrollViewer">
+            <ItemsControl x:Name="AdminProductsItemsControl" Margin="15">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="models:Product">
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
+                                BorderThickness="1" 
+                                CornerRadius="8"
+                                Padding="15"
+                                Margin="10"
+                                Width="280"
+                                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding ProductName}" 
+                                           FontSize="18" 
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="{Binding Category.CategoryName, StringFormat='Category: {0}'}" 
+                                           FontSize="12"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           Margin="0,0,0,5"/>
+                                
+                                <TextBlock Text="{Binding Price, StringFormat='${0:F2}'}" 
+                                           FontSize="24" 
+                                           FontWeight="Bold"
+                                           Foreground="#27AE60"
+                                           Margin="0,5,0,5"/>
+                                
+                                <TextBlock Text="{Binding StockQuantity, StringFormat='Stock Remaining: {0}'}" 
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Margin="0,5,0,0">
+                                    <TextBlock.Foreground>
+                                        <Binding Path="StockQuantity">
+                                            <Binding.Converter>
+                                                <local:StockToColorConverter/>
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Foreground>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

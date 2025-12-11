@@ -6,5 +6,6 @@ namespace ECommerce.UI.Helpers
     {
         public static User? CurrentUser { get; set; }
         public static bool IsLoggedIn => CurrentUser != null;
+        public static bool IsAdmin { get; set; }
     }
 }

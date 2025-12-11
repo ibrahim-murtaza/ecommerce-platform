@@ -49,6 +49,7 @@ namespace ECommerce.UI.Views
                 if (user != null && user.PasswordHash == password)
                 {
                     SessionManager.CurrentUser = user;
+                    SessionManager.IsAdmin = false;
 
                     var mainWindow = new MainWindow();
                     mainWindow.Show();
@@ -143,6 +144,130 @@ namespace ECommerce.UI.Views
             {
                 RegisterMessageTextBlock.Text = $"Registration error: {ex.Message}";
                 RegisterMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+            }
+        }
+
+        private void AdminLoginButton_Click(object? sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var email = AdminLoginEmailTextBox.Text?.Trim();
+                var password = AdminLoginPasswordTextBox.Text;
+
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    AdminLoginMessageTextBlock.Text = "Please enter both email and password";
+                    AdminLoginMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+                    return;
+                }
+
+                // Query admin from database
+                var context = new ECommerce.DAL.ECommerceContext();
+                var admin = context.Admins.FirstOrDefault(a => a.Email == email && a.PasswordHash == password && a.IsActive);
+
+                if (admin != null)
+                {
+                    // Create a temporary user object for session (admin has limited User properties)
+                    SessionManager.CurrentUser = new User
+                    {
+                        UserID = admin.AdminID,
+                        Email = admin.Email,
+                        FirstName = admin.FirstName ?? string.Empty,
+                        LastName = admin.LastName ?? string.Empty
+                    };
+                    SessionManager.IsAdmin = true;
+
+                    var mainWindow = new MainWindow();
+                    mainWindow.Show();
+                    this.Close();
+                }
+                else
+                {
+                    AdminLoginMessageTextBlock.Text = "Invalid admin credentials";
+                    AdminLoginMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+                }
+            }
+            catch (Exception ex)
+            {
+                AdminLoginMessageTextBlock.Text = $"Login error: {ex.Message}";
+                AdminLoginMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+            }
+        }
+
+        private void AdminRegisterButton_Click(object? sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var email = AdminRegisterEmailTextBox.Text?.Trim();
+                var password = AdminRegisterPasswordTextBox.Text;
+                var confirmPassword = AdminRegisterConfirmPasswordTextBox.Text;
+                var firstName = AdminRegisterFirstNameTextBox.Text?.Trim();
+                var lastName = AdminRegisterLastNameTextBox.Text?.Trim();
+                var role = ((ComboBoxItem?)AdminRoleComboBox.SelectedItem)?.Content?.ToString() ?? "Staff";
+
+                // Validation
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) ||
+                    string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+                {
+                    AdminRegisterMessageTextBlock.Text = "All fields are required";
+                    AdminRegisterMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+                    return;
+                }
+
+                if (password != confirmPassword)
+                {
+                    AdminRegisterMessageTextBlock.Text = "Passwords do not match";
+                    AdminRegisterMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+                    return;
+                }
+
+                if (password.Length < 6)
+                {
+                    AdminRegisterMessageTextBlock.Text = "Password must be at least 6 characters";
+                    AdminRegisterMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+                    return;
+                }
+
+                var context = new ECommerce.DAL.ECommerceContext();
+
+                // Check if email already exists
+                var existingAdmin = context.Admins.FirstOrDefault(a => a.Email == email);
+                if (existingAdmin != null)
+                {
+                    AdminRegisterMessageTextBlock.Text = "Email already registered";
+                    AdminRegisterMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
+                    return;
+                }
+
+                // Create new admin
+                var newAdmin = new Admin
+                {
+                    Email = email,
+                    PasswordHash = password, // In production, hash this!
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Role = role,
+                    DateCreated = DateTime.Now,
+                    IsActive = true
+                };
+
+                context.Admins.Add(newAdmin);
+                context.SaveChanges();
+
+                AdminRegisterMessageTextBlock.Text = "Admin registration successful! Please login.";
+                AdminRegisterMessageTextBlock.Foreground = Avalonia.Media.Brushes.Green;
+
+                // Clear form
+                AdminRegisterEmailTextBox.Text = "";
+                AdminRegisterPasswordTextBox.Text = "";
+                AdminRegisterConfirmPasswordTextBox.Text = "";
+                AdminRegisterFirstNameTextBox.Text = "";
+                AdminRegisterLastNameTextBox.Text = "";
+            }
+            catch (Exception ex)
+            {
+                AdminRegisterMessageTextBlock.Text = $"Registration error: {ex.Message}";
+                AdminRegisterMessageTextBlock.Foreground = Avalonia.Media.Brushes.Red;
             }
         }
     }

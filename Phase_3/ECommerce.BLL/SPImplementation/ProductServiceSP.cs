@@ -61,8 +61,8 @@ namespace ECommerce.BLL.SPImplementation
             };
 
             _context.Database.ExecuteSqlRaw(
-                "INSERT INTO Product (CategoryID, ProductName, Price, StockQuantity, ImageURL, IsActive) " +
-                "VALUES (@CategoryID, @ProductName, @Price, @StockQuantity, @ImageURL, @IsActive)",
+                "INSERT INTO Product (CategoryID, ProductName, Price, StockQuantity, ImageURL, IsActive, DateAdded) " +
+                "VALUES (@CategoryID, @ProductName, @Price, @StockQuantity, @ImageURL, @IsActive, GETDATE())",
                 parameters);
         }
 
@@ -90,14 +90,6 @@ namespace ECommerce.BLL.SPImplementation
         {
             var idParam = new SqlParameter("@ProductID", id);
             _context.Database.ExecuteSqlRaw("DELETE FROM Product WHERE ProductID = @ProductID", idParam);
-        }
-
-        public List<Product> GetLowStockProducts()
-        {
-            // Uses vw_LowStockProducts view
-            return _context.Products
-                .FromSqlRaw("SELECT * FROM vw_LowStockProducts")
-                .ToList();
         }
     }
 }

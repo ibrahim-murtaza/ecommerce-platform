@@ -11,6 +11,5 @@ namespace ECommerce.BLL.Interfaces
         void AddProduct(Product product);
         void UpdateProduct(Product product);
         void DeleteProduct(int id);
-        List<Product> GetLowStockProducts(); // Uses vw_LowStockProducts
     }
 }

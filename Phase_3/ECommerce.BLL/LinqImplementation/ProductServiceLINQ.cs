@@ -59,13 +59,5 @@ namespace ECommerce.BLL.LinqImplementation
                 _context.SaveChanges();
             }
         }
-
-        public List<Product> GetLowStockProducts()
-        {
-            // Uses the vw_LowStockProducts view
-            return _context.Products
-                .FromSqlRaw("SELECT * FROM vw_LowStockProducts")
-                .ToList();
-        }
     }
 }

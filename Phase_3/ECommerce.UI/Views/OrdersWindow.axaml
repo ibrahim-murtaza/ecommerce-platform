@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        x:Class="ECommerce.UI.Views.OrdersWindow"
+        Title="My Orders"
+        Width="1000" Height="600"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" 
+                Background="{DynamicResource SystemAccentColor}" 
+                Padding="20">
+            <TextBlock Text="📦 My Orders" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+        </Border>
+
+        <!-- Orders List -->
+        <ScrollViewer Grid.Row="1" Margin="20">
+            <StackPanel x:Name="OrdersPanel">
+                <TextBlock x:Name="NoOrdersTextBlock"
+                           Text="You haven't placed any orders yet."
+                           FontSize="16"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,50,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

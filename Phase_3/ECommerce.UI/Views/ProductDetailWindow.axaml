@@ -9,15 +9,16 @@
         WindowStartupLocation="CenterOwner"
         CanResize="False">
 
-    <Border Padding="30" Background="White">
+    <Border Padding="30" Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
         <StackPanel>
             <TextBlock x:Name="ProductNameTextBlock"
                        FontSize="28"
                        FontWeight="Bold"
+                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                        TextWrapping="Wrap"
                        Margin="0,0,0,20"/>
 
-            <Border BorderBrush="#BDC3C7" 
+            <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
                     BorderThickness="0,0,0,1" 
                     Padding="0,0,0,15"
                     Margin="0,0,0,15">
@@ -101,15 +102,12 @@
                 <Button x:Name="AddToCartButton"
                         Content="Add to Cart"
                         Click="AddToCartButton_Click"
-                        Background="#27AE60"
-                        Foreground="White"
+                        Theme="{StaticResource AccentButtonTheme}"
                         Padding="30,15"
                         FontSize="16"
                         Margin="0,0,10,0"/>
                 <Button Content="Close"
                         Click="CloseButton_Click"
-                        Background="#95A5A6"
-                        Foreground="White"
                         Padding="30,15"
                         FontSize="16"/>
             </StackPanel>

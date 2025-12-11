@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Styling;
 using ECommerce.Factory;
 using ECommerce.Models;
 using ECommerce.UI.Helpers;
@@ -68,13 +69,17 @@ namespace ECommerce.UI.Views
         {
             var border = new Border
             {
-                BorderBrush = Avalonia.Media.Brushes.LightGray,
                 BorderThickness = new Avalonia.Thickness(1),
                 CornerRadius = new Avalonia.CornerRadius(8),
                 Padding = new Avalonia.Thickness(15),
-                Margin = new Avalonia.Thickness(0, 0, 0, 10),
-                Background = Avalonia.Media.Brushes.White
+                Margin = new Avalonia.Thickness(0, 0, 0, 10)
             };
+            
+            // Bind to theme resources using data binding
+            border.Bind(Border.BorderBrushProperty, 
+                new Avalonia.Data.Binding { Source = this.FindResource("SystemControlForegroundBaseMediumLowBrush") });
+            border.Bind(Border.BackgroundProperty, 
+                new Avalonia.Data.Binding { Source = this.FindResource("SystemControlBackgroundAltHighBrush") });
 
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
@@ -91,6 +96,8 @@ namespace ECommerce.UI.Views
                 FontWeight = Avalonia.Media.FontWeight.Bold,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            nameBlock.Bind(TextBlock.ForegroundProperty, 
+                new Avalonia.Data.Binding { Source = this.FindResource("SystemControlForegroundBaseHighBrush") });
             Grid.SetColumn(nameBlock, 0);
             grid.Children.Add(nameBlock);
 
@@ -101,6 +108,8 @@ namespace ECommerce.UI.Views
                 FontSize = 14,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            priceBlock.Bind(TextBlock.ForegroundProperty, 
+                new Avalonia.Data.Binding { Source = this.FindResource("SystemControlForegroundBaseHighBrush") });
             Grid.SetColumn(priceBlock, 1);
             grid.Children.Add(priceBlock);
 
@@ -129,6 +138,8 @@ namespace ECommerce.UI.Views
                 MinWidth = 30,
                 TextAlignment = Avalonia.Media.TextAlignment.Center
             };
+            quantityText.Bind(TextBlock.ForegroundProperty, 
+                new Avalonia.Data.Binding { Source = this.FindResource("SystemControlForegroundBaseHighBrush") });
 
             var increaseBtn = new Button
             {
@@ -162,11 +173,10 @@ namespace ECommerce.UI.Views
             var removeBtn = new Button
             {
                 Content = "🗑️",
-                Background = Avalonia.Media.Brushes.Red,
-                Foreground = Avalonia.Media.Brushes.White,
                 Padding = new Avalonia.Thickness(10, 5),
                 Tag = cartItem.CartID
             };
+            removeBtn.Classes.Add("danger");
             removeBtn.Click += RemoveItem_Click;
             Grid.SetColumn(removeBtn, 4);
             grid.Children.Add(removeBtn);

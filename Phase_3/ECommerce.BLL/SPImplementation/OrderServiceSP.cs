@@ -23,6 +23,7 @@ namespace ECommerce.BLL.SPImplementation
             return _context.Orders
                 .FromSqlRaw("SELECT * FROM [Order]")
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .Include(o => o.User)
                 .ToList();
         }
@@ -49,8 +50,10 @@ namespace ECommerce.BLL.SPImplementation
             var userIdParam = new SqlParameter("@UserID", userId);
 
             return _context.Orders
-                .FromSqlRaw("SELECT * FROM [Order] WHERE UserID = @UserID ORDER BY OrderDate DESC", userIdParam)
+                .FromSqlRaw("SELECT * FROM [Order] WHERE UserID = @UserID", userIdParam)
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.OrderDate)
                 .ToList();
         }
 
@@ -68,6 +71,9 @@ namespace ECommerce.BLL.SPImplementation
             _context.Database.ExecuteSqlRaw(
                 "EXEC sp_PlaceOrder @UserID, @ShippingAddress, @ShippingCity, @ShippingPostalCode",
                 parameters);
+            
+            // Note: Stock update is handled by the trigger trg_AfterOrderItem_UpdateStock
+            // or within the stored procedure itself
         }
 
         public void UpdateOrderStatus(int orderId, string newStatus)
@@ -91,6 +97,7 @@ namespace ECommerce.BLL.SPImplementation
             return _context.Orders
                 .FromSqlRaw("SELECT * FROM [Order] WHERE Status = @Status", statusParam)
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .ToList();
         }
 

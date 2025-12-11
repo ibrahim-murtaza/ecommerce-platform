@@ -45,21 +45,17 @@ namespace ECommerce.BLL.LinqImplementation
 
             if (existingCartItem != null)
             {
-                // Update quantity
-                existingCartItem.Quantity += quantity;
-                _context.SaveChanges();
+                // Update quantity using raw SQL to avoid trigger issues
+                _context.Database.ExecuteSqlRaw(
+                    "UPDATE Cart SET Quantity = Quantity + {0} WHERE CartID = {1}",
+                    quantity, existingCartItem.CartID);
             }
             else
             {
-                // Add new cart item
-                var cartItem = new Cart
-                {
-                    UserID = userId,
-                    ProductID = productId,
-                    Quantity = quantity
-                };
-                _context.Carts.Add(cartItem);
-                _context.SaveChanges();
+                // Add new cart item using raw SQL to work with INSTEAD OF trigger
+                _context.Database.ExecuteSqlRaw(
+                    "INSERT INTO Cart (UserID, ProductID, Quantity, DateAdded) VALUES ({0}, {1}, {2}, GETDATE())",
+                    userId, productId, quantity);
             }
         }
 

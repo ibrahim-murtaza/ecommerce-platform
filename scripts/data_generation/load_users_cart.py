@@ -2,11 +2,12 @@ import pyodbc
 import csv
 
 conn_str = (
-    'DRIVER={ODBC Driver 17 for SQL Server};'
+    'DRIVER={ODBC Driver 18 for SQL Server};'
     'SERVER=localhost,1433;'
     'DATABASE=ECommerceDB;'
     'UID=sa;'
     'PWD=YourStrong!Passw0rd;'
+    'TrustServerCertificate=yes;'
 )
 
 try:

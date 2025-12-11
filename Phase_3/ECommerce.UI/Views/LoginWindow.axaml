@@ -32,10 +32,10 @@
     </Window.Styles>
 
     <TabControl Margin="20">
-        <!-- Login Tab -->
-        <TabItem Header="Login">
+        <!-- User Login Tab -->
+        <TabItem Header="👤 User Login">
             <StackPanel VerticalAlignment="Center" MaxWidth="400">
-                <TextBlock Text="Welcome Back!" Classes="header" HorizontalAlignment="Center"/>
+                <TextBlock Text="User Login" Classes="header" HorizontalAlignment="Center"/>
                 
                 <TextBlock Text="Email:" Classes="label"/>
                 <TextBox x:Name="LoginEmailTextBox" Watermark="Enter your email"/>
@@ -78,11 +78,11 @@
             </StackPanel>
         </TabItem>
 
-        <!-- Register Tab -->
-        <TabItem Header="Register">
+        <!-- User Register Tab -->
+        <TabItem Header="👤 User Register">
             <ScrollViewer>
                 <StackPanel Margin="20" MaxWidth="400">
-                    <TextBlock Text="Create Account" Classes="header" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Create User Account" Classes="header" HorizontalAlignment="Center"/>
                     
                     <TextBlock Text="Email:" Classes="label"/>
                     <TextBox x:Name="RegisterEmailTextBox" Watermark="Enter your email"/>
@@ -113,10 +113,86 @@
                             Content="Register" 
                             Click="RegisterButton_Click"
                             HorizontalAlignment="Stretch"
-                            Background="#2196F3"
+                            Background="#4CAF50"
                             Foreground="White"/>
                     
                     <TextBlock x:Name="RegisterMessageTextBlock" 
+                               Margin="0,10,0,0"
+                               Foreground="Red"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+
+        <!-- Admin Login Tab -->
+        <TabItem Header="🔐 Admin Login">
+            <StackPanel VerticalAlignment="Center" MaxWidth="400">
+                <TextBlock Text="Admin Login" Classes="header" HorizontalAlignment="Center"/>
+                
+                <TextBlock Text="Email:" Classes="label"/>
+                <TextBox x:Name="AdminLoginEmailTextBox" Watermark="Enter admin email"/>
+                
+                <TextBlock Text="Password:" Classes="label"/>
+                <TextBox x:Name="AdminLoginPasswordTextBox" 
+                         Watermark="Enter admin password" 
+                         PasswordChar="•"/>
+                
+                <Button x:Name="AdminLoginButton" 
+                        Content="Admin Login" 
+                        Click="AdminLoginButton_Click"
+                        HorizontalAlignment="Stretch"
+                        Background="#4CAF50"
+                        Foreground="White"/>
+                
+                <TextBlock x:Name="AdminLoginMessageTextBlock" 
+                           Margin="0,10,0,0"
+                           Foreground="Red"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </TabItem>
+
+        <!-- Admin Register Tab -->
+        <TabItem Header="🔐 Admin Register">
+            <ScrollViewer>
+                <StackPanel Margin="20" MaxWidth="400">
+                    <TextBlock Text="Create Admin Account" Classes="header" HorizontalAlignment="Center"/>
+                    
+                    <TextBlock Text="Email:" Classes="label"/>
+                    <TextBox x:Name="AdminRegisterEmailTextBox" Watermark="Enter admin email"/>
+                    
+                    <TextBlock Text="Password:" Classes="label"/>
+                    <TextBox x:Name="AdminRegisterPasswordTextBox" 
+                             Watermark="Enter password" 
+                             PasswordChar="•"/>
+                    
+                    <TextBlock Text="Confirm Password:" Classes="label"/>
+                    <TextBox x:Name="AdminRegisterConfirmPasswordTextBox" 
+                             Watermark="Confirm password" 
+                             PasswordChar="•"/>
+                    
+                    <TextBlock Text="First Name:" Classes="label"/>
+                    <TextBox x:Name="AdminRegisterFirstNameTextBox" Watermark="Enter first name"/>
+                    
+                    <TextBlock Text="Last Name:" Classes="label"/>
+                    <TextBox x:Name="AdminRegisterLastNameTextBox" Watermark="Enter last name"/>
+                    
+                    <TextBlock Text="Role:" Classes="label"/>
+                    <ComboBox x:Name="AdminRoleComboBox">
+                        <ComboBoxItem Content="Manager" IsSelected="True"/>
+                        <ComboBoxItem Content="Supervisor"/>
+                        <ComboBoxItem Content="Staff"/>
+                    </ComboBox>
+                    
+                    <Button x:Name="AdminRegisterButton" 
+                            Content="Register Admin" 
+                            Click="AdminRegisterButton_Click"
+                            HorizontalAlignment="Stretch"
+                            Background="#4CAF50"
+                            Foreground="White"/>
+                    
+                    <TextBlock x:Name="AdminRegisterMessageTextBlock" 
                                Margin="0,10,0,0"
                                Foreground="Red"
                                TextWrapping="Wrap"

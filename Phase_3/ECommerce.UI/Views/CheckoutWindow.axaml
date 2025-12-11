@@ -17,11 +17,13 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2C3E50" Padding="20">
+        <Border Grid.Row="0" 
+                Background="{DynamicResource SystemAccentColor}" 
+                Padding="20">
             <TextBlock Text="📦 Checkout" 
                        FontSize="24" 
                        FontWeight="Bold"
-                       Foreground="White"/>
+                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
         </Border>
 
         <!-- Form -->
@@ -30,6 +32,7 @@
                 <TextBlock Text="Shipping Information" 
                            FontSize="20"
                            FontWeight="Bold"
+                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                            Margin="0,0,0,20"/>
 
                 <TextBlock Text="Full Address:" 
@@ -56,12 +59,12 @@
                          Watermark="Enter postal code"
                          Margin="0,0,0,15"/>
 
-                <Border BorderBrush="#BDC3C7" 
+                <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="15"
                         Margin="0,20,0,20"
-                        Background="#ECF0F1">
+                        Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -76,12 +79,14 @@
                                    Text="Cart Total:"
                                    FontSize="18"
                                    FontWeight="Bold"
+                                   Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                                    Margin="0,0,0,10"/>
                         <TextBlock Grid.Row="0" Grid.Column="1"
                                    x:Name="CartTotalTextBlock"
                                    Text="$0.00"
                                    FontSize="18"
                                    FontWeight="Bold"
+                                   Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                                    Margin="0,0,0,10"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0"
@@ -108,23 +113,20 @@
 
         <!-- Buttons -->
         <Border Grid.Row="2" 
-                BorderBrush="#BDC3C7" 
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
                 BorderThickness="0,1,0,0"
                 Padding="20"
-                Background="White">
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button x:Name="PlaceOrderButton"
                         Content="Place Order"
                         Click="PlaceOrderButton_Click"
-                        Background="#27AE60"
-                        Foreground="White"
+                        Theme="{StaticResource AccentButtonTheme}"
                         Padding="40,15"
                         FontSize="16"
                         Margin="0,0,10,0"/>
                 <Button Content="Cancel"
                         Click="CancelButton_Click"
-                        Background="#95A5A6"
-                        Foreground="White"
                         Padding="40,15"
                         FontSize="16"/>
             </StackPanel>

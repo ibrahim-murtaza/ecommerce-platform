@@ -86,7 +86,7 @@ namespace ECommerce.BLL.SPImplementation
                 };
 
                 _context.Database.ExecuteSqlRaw(
-                    "INSERT INTO Cart (UserID, ProductID, Quantity) VALUES (@UserID, @ProductID, @Quantity)",
+                    "INSERT INTO Cart (UserID, ProductID, Quantity, DateAdded) VALUES (@UserID, @ProductID, @Quantity, GETDATE())",
                     insertParams);
             }
         }

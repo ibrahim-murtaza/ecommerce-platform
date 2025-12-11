@@ -1,11 +1,14 @@
 using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using ECommerce.Factory;
 using ECommerce.Models;
 using ECommerce.UI.Helpers;
 using ECommerce.UI.Views;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace ECommerce.UI;
@@ -14,6 +17,7 @@ public partial class MainWindow : Window
 {
     private List<Product> _allProducts = new();
     private List<Category> _allCategories = new();
+    private string _currentSearchText = string.Empty;
 
     public MainWindow()
     {
@@ -26,7 +30,34 @@ public partial class MainWindow : Window
         // Set welcome message
         if (SessionManager.CurrentUser != null)
         {
-            WelcomeTextBlock.Text = $"Welcome, {SessionManager.CurrentUser.FirstName}!";
+            WelcomeTextBlock.Text = $"Welcome, {SessionManager.CurrentUser.FirstName ?? "User"}!";
+        }
+
+        // Show/hide buttons based on user type
+        if (SessionManager.IsAdmin)
+        {
+            // Admin sees: Admin Dashboard, Toggle BLL, Logout
+            ViewCartButton.IsVisible = false;
+            OrdersButton.IsVisible = false;
+            AdminDashboardButton.IsVisible = true;
+            
+            // Show admin product view (no buttons)
+            UserProductsScrollViewer.IsVisible = false;
+            AdminProductsScrollViewer.IsVisible = true;
+            
+            // Disable cart functionality for admins
+            WelcomeTextBlock.Text = $"Welcome, Admin {SessionManager.CurrentUser?.FirstName ?? "User"}!";
+        }
+        else
+        {
+            // Regular user sees: Cart, Orders, Toggle BLL, Logout
+            ViewCartButton.IsVisible = true;
+            OrdersButton.IsVisible = true;
+            AdminDashboardButton.IsVisible = false;
+            
+            // Show user product view (with buttons)
+            UserProductsScrollViewer.IsVisible = true;
+            AdminProductsScrollViewer.IsVisible = false;
         }
 
         UpdateBLLModeDisplay();
@@ -59,35 +90,67 @@ public partial class MainWindow : Window
         }
     }
 
-    private void LoadProducts(int? categoryId = null, bool lowStockOnly = false)
+    private void LoadProducts(int? categoryId = null)
     {
         try
         {
             var productService = BLLFactory.GetProductService(BLLManager.CurrentBLLType);
 
-            if (lowStockOnly)
-            {
-                _allProducts = productService.GetLowStockProducts();
-            }
-            else if (categoryId.HasValue)
+            if (categoryId.HasValue)
             {
                 _allProducts = productService.GetProductsByCategory(categoryId.Value);
             }
             else
             {
                 _allProducts = productService.GetAllProducts()
-                    .Take(100)  // ← ADD THIS LINE - only load first 100 products
+                    .OrderByDescending(p => p.ProductID) // Show newest products first
+                    .Take(200) // Limit to 200 most recent products for performance
                     .ToList();
             }
 
             // Filter only active products
             _allProducts = _allProducts.Where(p => p.IsActive).ToList();
 
-            ProductsItemsControl.ItemsSource = _allProducts;
+            // Apply search filter if search text exists
+            ApplySearchFilter();
+            
+            // Update Add to Cart button visibility after products load
+            UpdateAddToCartButtonsVisibility();
         }
         catch (Exception ex)
         {
             ShowError($"Error loading products: {ex.Message}");
+        }
+    }
+    
+    private void UpdateAddToCartButtonsVisibility()
+    {
+        // No longer needed - template now only shows View Details for all users
+        // Add to Cart removed from product cards
+    }
+
+    private void ApplySearchFilter()
+    {
+        var filteredProducts = _allProducts;
+
+        if (!string.IsNullOrWhiteSpace(_currentSearchText))
+        {
+            filteredProducts = _allProducts
+                .Where(p => p.ProductName.Contains(_currentSearchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        // Update both ItemsControls (only the visible one will be shown)
+        ProductsItemsControl.ItemsSource = filteredProducts;
+        AdminProductsItemsControl.ItemsSource = filteredProducts;
+    }
+
+    private void SearchTextBox_TextChanged(object? sender, Avalonia.Controls.TextChangedEventArgs e)
+    {
+        if (sender is TextBox textBox)
+        {
+            _currentSearchText = textBox.Text ?? string.Empty;
+            ApplySearchFilter();
         }
     }
 
@@ -130,11 +193,6 @@ public partial class MainWindow : Window
         LoadProducts();
     }
 
-    private void ShowLowStockButton_Click(object? sender, RoutedEventArgs e)
-    {
-        LoadProducts(lowStockOnly: true);
-    }
-
     private void RefreshButton_Click(object? sender, RoutedEventArgs e)
     {
         LoadProducts();
@@ -166,6 +224,13 @@ public partial class MainWindow : Window
 
     private void AddToCartButton_Click(object? sender, RoutedEventArgs e)
     {
+        // Admins cannot add to cart
+        if (SessionManager.IsAdmin)
+        {
+            ShowError("Admins cannot add items to cart. This is a view-only interface.");
+            return;
+        }
+        
         try
         {
             if (SessionManager.CurrentUser == null)
@@ -201,15 +266,31 @@ public partial class MainWindow : Window
         UpdateCartCount();
     }
 
+    private async void OrdersButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (SessionManager.CurrentUser == null)
+        {
+            ShowError("Please login to view orders");
+            return;
+        }
+
+        var ordersWindow = new OrdersWindow();
+        await ordersWindow.ShowDialog(this);
+    }
+
     private async void AdminDashboardButton_Click(object? sender, RoutedEventArgs e)
     {
         var adminWindow = new AdminDashboardWindow();
         await adminWindow.ShowDialog(this);
+        
+        // Reload products after returning from admin dashboard
+        LoadProducts();
     }
 
     private void LogoutButton_Click(object? sender, RoutedEventArgs e)
     {
         SessionManager.CurrentUser = null;
+        SessionManager.IsAdmin = false;
         var loginWindow = new LoginWindow();
         loginWindow.Show();
         this.Close();
@@ -276,5 +357,77 @@ public partial class MainWindow : Window
 
         ((Button)((StackPanel)messageBox.Content).Children[1]).Click += (s, e) => messageBox.Close();
         await messageBox.ShowDialog(this);
+    }
+}
+
+// Converter to show/hide OUT OF STOCK badge
+public class StockToVisibilityConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is int stock)
+        {
+            return stock == 0;
+        }
+        return false;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+// Converter to gray out out-of-stock products
+public class StockToOpacityConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is int stock)
+        {
+            return stock == 0 ? 0.6 : 1.0;
+        }
+        return 1.0;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+// Converter to change stock text color (red when 0)
+public class StockToColorConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is int stock)
+        {
+            return stock == 0 ? new SolidColorBrush(Color.Parse("#D32F2F")) : new SolidColorBrush(Color.Parse("#666666"));
+        }
+        return new SolidColorBrush(Color.Parse("#666666"));
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+// Converter to disable Add to Cart button when stock is 0
+public class StockToEnabledConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is int stock)
+        {
+            return stock > 0;
+        }
+        return false;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -21,6 +21,7 @@ namespace ECommerce.BLL.LinqImplementation
         {
             return _context.Orders
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .Include(o => o.User)
                 .ToList();
         }
@@ -38,6 +39,7 @@ namespace ECommerce.BLL.LinqImplementation
         {
             return _context.Orders
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .Where(o => o.UserID == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
@@ -63,44 +65,46 @@ namespace ECommerce.BLL.LinqImplementation
 
                 decimal totalAmount = cartItems.Sum(c => c.Product.Price * c.Quantity);
 
-                // Create order (note: Order model doesn't have ShippingCity and ShippingPostalCode)
-                var order = new Order
+                // Create order and get the OrderID in one operation using OUTPUT
+                var orderIdQuery = _context.Database.SqlQueryRaw<int>(
+                    @"DECLARE @InsertedOrders TABLE (OrderID INT, OrderDate DATETIME2);
+                      INSERT INTO [Order] (UserID, OrderDate, TotalAmount, Status, ShippingAddress) 
+                      OUTPUT INSERTED.OrderID, INSERTED.OrderDate INTO @InsertedOrders
+                      VALUES ({0}, {1}, {2}, {3}, {4});
+                      SELECT OrderID FROM @InsertedOrders;",
+                    userId, orderDate, totalAmount, "Pending", shippingAddress).AsEnumerable();
+
+                var orderId = orderIdQuery.FirstOrDefault();
+
+                if (orderId == 0)
                 {
-                    UserID = userId,
-                    OrderDate = orderDate,
-                    TotalAmount = totalAmount,
-                    Status = "Pending",
-                    ShippingAddress = shippingAddress
-                };
-
-                _context.Orders.Add(order);
-                _context.SaveChanges();
-
-                // Create order items
-                foreach (var cartItem in cartItems)
-                {
-                    var orderItem = new OrderItem
-                    {
-                        OrderID = order.OrderID,
-                        OrderDate = orderDate,
-                        ProductID = cartItem.ProductID,
-                        Quantity = cartItem.Quantity,
-                        PriceAtPurchase = cartItem.Product.Price
-                    };
-                    _context.OrderItems.Add(orderItem);
-
-                    // Update stock (trigger would handle this in SP version, but we do it manually in LINQ)
-                    var product = _context.Products.Find(cartItem.ProductID);
-                    if (product != null)
-                    {
-                        product.StockQuantity -= cartItem.Quantity;
-                    }
+                    throw new InvalidOperationException("Failed to create order.");
                 }
 
-                // Clear cart
-                _context.Carts.RemoveRange(cartItems);
+                // Create order items using raw SQL to work with trigger
+                foreach (var cartItem in cartItems)
+                {
+                    _context.Database.ExecuteSqlRaw(
+                        @"INSERT INTO OrderItem (OrderID, OrderDate, ProductID, Quantity, PriceAtPurchase) 
+                          VALUES ({0}, {1}, {2}, {3}, {4})",
+                        orderId, orderDate, cartItem.ProductID, cartItem.Quantity, cartItem.Product.Price);
+                }
 
-                _context.SaveChanges();
+                // Manually update stock quantities (in case trigger doesn't fire)
+                // The trigger should handle this, but we ensure it happens
+                foreach (var cartItem in cartItems)
+                {
+                    _context.Database.ExecuteSqlRaw(
+                        @"UPDATE Product 
+                          SET StockQuantity = StockQuantity - {0} 
+                          WHERE ProductID = {1}",
+                        cartItem.Quantity, cartItem.ProductID);
+                }
+
+                // Clear cart using raw SQL
+                _context.Database.ExecuteSqlRaw(
+                    "DELETE FROM Cart WHERE UserID = {0}", userId);
+
                 transaction.Commit();
             }
             catch
@@ -112,19 +116,17 @@ namespace ECommerce.BLL.LinqImplementation
 
         public void UpdateOrderStatus(int orderId, string newStatus)
         {
-            // Find any order with this OrderID (we need to get OrderDate too)
-            var order = _context.Orders.FirstOrDefault(o => o.OrderID == orderId);
-            if (order != null)
-            {
-                order.Status = newStatus;
-                _context.SaveChanges();
-            }
+            // Use raw SQL to update status directly without loading the entity
+            _context.Database.ExecuteSqlRaw(
+                "UPDATE [Order] SET Status = {0} WHERE OrderID = {1}",
+                newStatus, orderId);
         }
 
         public List<Order> GetOrdersByStatus(string status)
         {
             return _context.Orders
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .Where(o => o.Status == status)
                 .ToList();
         }
