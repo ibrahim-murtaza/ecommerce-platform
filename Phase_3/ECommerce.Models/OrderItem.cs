@@ -6,12 +6,11 @@ namespace ECommerce.Models
     [Table("OrderItem")]
     public class OrderItem
     {
-        // Composite Key (OrderItemID + OrderDate) is configured in DbContext, not here via attributes
         public int OrderItemID { get; set; }
         
         public int OrderID { get; set; }
         
-        public DateTime OrderDate { get; set; } // Part of partition key
+        public DateTime OrderDate { get; set; } 
 
         public int ProductID { get; set; }
 
@@ -20,11 +19,10 @@ namespace ECommerce.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal PriceAtPurchase { get; set; }
 
-        // Navigation Properties
         [ForeignKey("ProductID")]
         public virtual Product Product { get; set; } = null!;
         
-        [ForeignKey("OrderID, OrderDate")] // Composite Foreign Key
+        [ForeignKey("OrderID, OrderDate")]
         public virtual Order Order { get; set; } = null!;
     }
 }

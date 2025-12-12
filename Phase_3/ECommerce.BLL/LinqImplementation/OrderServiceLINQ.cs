@@ -52,7 +52,6 @@ namespace ECommerce.BLL.LinqImplementation
             {
                 var orderDate = DateTime.Now;
 
-                // Calculate total from cart
                 var cartItems = _context.Carts
                     .Include(c => c.Product)
                     .Where(c => c.UserID == userId)
@@ -65,7 +64,7 @@ namespace ECommerce.BLL.LinqImplementation
 
                 decimal totalAmount = cartItems.Sum(c => c.Product.Price * c.Quantity);
 
-                // Create order and get the OrderID in one operation using OUTPUT
+
                 var orderIdQuery = _context.Database.SqlQueryRaw<int>(
                     @"DECLARE @InsertedOrders TABLE (OrderID INT, OrderDate DATETIME2);
                       INSERT INTO [Order] (UserID, OrderDate, TotalAmount, Status, ShippingAddress) 
@@ -81,7 +80,7 @@ namespace ECommerce.BLL.LinqImplementation
                     throw new InvalidOperationException("Failed to create order.");
                 }
 
-                // Create order items using raw SQL to work with trigger
+
                 foreach (var cartItem in cartItems)
                 {
                     _context.Database.ExecuteSqlRaw(
@@ -90,8 +89,7 @@ namespace ECommerce.BLL.LinqImplementation
                         orderId, orderDate, cartItem.ProductID, cartItem.Quantity, cartItem.Product.Price);
                 }
 
-                // Manually update stock quantities (in case trigger doesn't fire)
-                // The trigger should handle this, but we ensure it happens
+
                 foreach (var cartItem in cartItems)
                 {
                     _context.Database.ExecuteSqlRaw(
@@ -101,7 +99,7 @@ namespace ECommerce.BLL.LinqImplementation
                         cartItem.Quantity, cartItem.ProductID);
                 }
 
-                // Clear cart using raw SQL
+
                 _context.Database.ExecuteSqlRaw(
                     "DELETE FROM Cart WHERE UserID = {0}", userId);
 
@@ -116,7 +114,7 @@ namespace ECommerce.BLL.LinqImplementation
 
         public void UpdateOrderStatus(int orderId, string newStatus)
         {
-            // Use raw SQL to update status directly without loading the entity
+
             _context.Database.ExecuteSqlRaw(
                 "UPDATE [Order] SET Status = {0} WHERE OrderID = {1}",
                 newStatus, orderId);

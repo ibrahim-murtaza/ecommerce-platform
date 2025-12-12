@@ -48,7 +48,7 @@ namespace ECommerce.BLL.SPImplementation
             var checkStockParams = new[]
             {
         new SqlParameter("@ProductID", productId),
-        new SqlParameter("@RequestedQuantity", totalRequested), // <-- Pass TOTAL here
+        new SqlParameter("@RequestedQuantity", totalRequested), 
         new SqlParameter("@Result", System.Data.SqlDbType.Bit) { Direction = System.Data.ParameterDirection.Output }
     };
 
@@ -121,7 +121,6 @@ namespace ECommerce.BLL.SPImplementation
 
         public decimal GetCartTotal(int userId)
         {
-            // Use the CalculateCartTotal function
             var userIdParam = new SqlParameter("@UserID", userId);
 
             var result = _context.Database

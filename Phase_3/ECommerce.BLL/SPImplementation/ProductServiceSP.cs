@@ -20,7 +20,6 @@ namespace ECommerce.BLL.SPImplementation
 
         public List<Product> GetAllProducts()
         {
-            // Use raw SQL query to get products
             return _context.Products
                 .FromSqlRaw("SELECT * FROM Product WHERE IsActive = 1")
                 .Include(p => p.Category)

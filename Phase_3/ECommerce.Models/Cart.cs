@@ -15,7 +15,6 @@ namespace ECommerce.Models
 
         public int Quantity { get; set; }
 
-        // Navigation Properties
         public virtual User User { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;
     }

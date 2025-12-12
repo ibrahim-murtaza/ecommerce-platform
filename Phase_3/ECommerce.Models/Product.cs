@@ -24,7 +24,6 @@ namespace ECommerce.Models
 
         public bool IsActive { get; set; }
 
-        // Navigation Property
         public virtual Category Category { get; set; } = null!;
     }
 }

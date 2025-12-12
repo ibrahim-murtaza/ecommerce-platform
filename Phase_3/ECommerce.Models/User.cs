@@ -27,7 +27,6 @@ namespace ECommerce.Models
         [MaxLength(50)]
         public string City { get; set; } = null!;
 
-        // Navigation properties (One User has many Orders/Carts)
         public virtual ICollection<Order> Orders { get; set; } = null!;
         public virtual ICollection<Cart> Carts { get; set; } = null!;
     }

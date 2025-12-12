@@ -16,7 +16,6 @@ namespace ECommerce.Models
         public string Description { get; set; } = null!;
         public bool IsActive { get; set; }
 
-        // Navigation property (One Category has many Products)
         public virtual ICollection<Product> Products { get; set; } = null!;
     }
 }

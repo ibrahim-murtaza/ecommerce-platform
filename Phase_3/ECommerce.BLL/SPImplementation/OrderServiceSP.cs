@@ -59,7 +59,7 @@ namespace ECommerce.BLL.SPImplementation
 
         public void PlaceOrder(int userId, string shippingAddress, string shippingCity, string shippingPostalCode)
         {
-            // Use the sp_PlaceOrder stored procedure
+
             var parameters = new[]
             {
                 new SqlParameter("@UserID", userId),
@@ -72,13 +72,12 @@ namespace ECommerce.BLL.SPImplementation
                 "EXEC sp_PlaceOrder @UserID, @ShippingAddress, @ShippingCity, @ShippingPostalCode",
                 parameters);
             
-            // Note: Stock update is handled by the trigger trg_AfterOrderItem_UpdateStock
-            // or within the stored procedure itself
+            
         }
 
         public void UpdateOrderStatus(int orderId, string newStatus)
         {
-            // Use the sp_UpdateOrderStatus stored procedure
+
             var parameters = new[]
             {
                 new SqlParameter("@OrderID", orderId),
