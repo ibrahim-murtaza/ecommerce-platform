@@ -27,32 +27,31 @@ namespace ECommerce.BLL.LinqImplementation
 
         public void AddToCart(int userId, int productId, int quantity)
         {
-            // Check if product exists and has stock
             var product = _context.Products.Find(productId);
             if (product == null || !product.IsActive)
             {
                 throw new InvalidOperationException("Product not found or inactive.");
             }
 
-            if (product.StockQuantity < quantity)
-            {
-                throw new InvalidOperationException("Insufficient stock.");
-            }
-
-            // Check if item already in cart
             var existingCartItem = _context.Carts
                 .FirstOrDefault(c => c.UserID == userId && c.ProductID == productId);
 
+            int currentQty = existingCartItem != null ? existingCartItem.Quantity : 0;
+            int totalReq = currentQty + quantity;
+
+            if (product.StockQuantity < totalReq)
+            {
+                throw new InvalidOperationException($"Insufficient stock. You have {currentQty} in cart. Adding {quantity} exceeds limit of {product.StockQuantity}.");
+            }
+
             if (existingCartItem != null)
             {
-                // Update quantity using raw SQL to avoid trigger issues
                 _context.Database.ExecuteSqlRaw(
                     "UPDATE Cart SET Quantity = Quantity + {0} WHERE CartID = {1}",
                     quantity, existingCartItem.CartID);
             }
             else
             {
-                // Add new cart item using raw SQL to work with INSTEAD OF trigger
                 _context.Database.ExecuteSqlRaw(
                     "INSERT INTO Cart (UserID, ProductID, Quantity, DateAdded) VALUES ({0}, {1}, {2}, GETDATE())",
                     userId, productId, quantity);

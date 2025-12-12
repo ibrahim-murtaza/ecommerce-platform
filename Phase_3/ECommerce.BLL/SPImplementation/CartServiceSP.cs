@@ -31,13 +31,26 @@ namespace ECommerce.BLL.SPImplementation
 
         public void AddToCart(int userId, int productId, int quantity)
         {
-            // Check stock availability using the function
+            var existingCartParam = new[]
+            {
+        new SqlParameter("@UserID", userId),
+        new SqlParameter("@ProductID", productId)
+    };
+
+            var existingCart = _context.Carts
+                .FromSqlRaw("SELECT * FROM Cart WHERE UserID = @UserID AND ProductID = @ProductID", existingCartParam)
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            int currentQty = existingCart != null ? existingCart.Quantity : 0;
+            int totalRequested = currentQty + quantity;
+
             var checkStockParams = new[]
             {
-                new SqlParameter("@ProductID", productId),
-                new SqlParameter("@RequestedQuantity", quantity),
-                new SqlParameter("@Result", System.Data.SqlDbType.Bit) { Direction = System.Data.ParameterDirection.Output }
-            };
+        new SqlParameter("@ProductID", productId),
+        new SqlParameter("@RequestedQuantity", totalRequested), // <-- Pass TOTAL here
+        new SqlParameter("@Result", System.Data.SqlDbType.Bit) { Direction = System.Data.ParameterDirection.Output }
+    };
 
             _context.Database.ExecuteSqlRaw(
                 "SELECT @Result = dbo.CheckStockAvailability(@ProductID, @RequestedQuantity)",
@@ -47,50 +60,33 @@ namespace ECommerce.BLL.SPImplementation
 
             if (!isAvailable)
             {
-                throw new InvalidOperationException("Insufficient stock or product inactive.");
+                throw new InvalidOperationException($"Insufficient stock. Total requested: {totalRequested}");
             }
-
-            // Check if item already exists in cart
-            var existingCartParam = new[]
-            {
-                new SqlParameter("@UserID", userId),
-                new SqlParameter("@ProductID", productId)
-            };
-
-            var existingCart = _context.Carts
-                .FromSqlRaw("SELECT * FROM Cart WHERE UserID = @UserID AND ProductID = @ProductID", existingCartParam)
-                .AsEnumerable()
-                .FirstOrDefault();
 
             if (existingCart != null)
             {
-                // Update quantity
                 var updateParams = new[]
                 {
-                    new SqlParameter("@CartID", existingCart.CartID),
-                    new SqlParameter("@NewQuantity", existingCart.Quantity + quantity)
-                };
-
+            new SqlParameter("@CartID", existingCart.CartID),
+            new SqlParameter("@NewQuantity", totalRequested)
+        };
                 _context.Database.ExecuteSqlRaw(
                     "UPDATE Cart SET Quantity = @NewQuantity WHERE CartID = @CartID",
                     updateParams);
             }
             else
             {
-                // Insert new cart item
                 var insertParams = new[]
                 {
-                    new SqlParameter("@UserID", userId),
-                    new SqlParameter("@ProductID", productId),
-                    new SqlParameter("@Quantity", quantity)
-                };
-
+            new SqlParameter("@UserID", userId),
+            new SqlParameter("@ProductID", productId),
+            new SqlParameter("@Quantity", quantity)
+        };
                 _context.Database.ExecuteSqlRaw(
                     "INSERT INTO Cart (UserID, ProductID, Quantity, DateAdded) VALUES (@UserID, @ProductID, @Quantity, GETDATE())",
                     insertParams);
             }
         }
-
         public void UpdateCartItemQuantity(int cartId, int newQuantity)
         {
             if (newQuantity <= 0)

@@ -13,8 +13,6 @@ namespace ECommerce.Factory
 
     public static class BLLFactory
     {
-        // Factory methods return actual service instances based on BLLType
-
         public static IProductService GetProductService(BLLType type)
         {
             var context = new ECommerceContext();
