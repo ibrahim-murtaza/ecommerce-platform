@@ -14,7 +14,7 @@ namespace ECommerce.DAL
             if (!optionsBuilder.IsConfigured)
             {
                 // optionsBuilder.UseSqlServer("Server=127.0.0.1,1433;Database=ECommerceDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
-                optionsBuilder.UseSqlServer("Server=127.0.0.1,31433;Database=ECommerceDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=localhost;Database=ECommerceDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
             
             }
         }

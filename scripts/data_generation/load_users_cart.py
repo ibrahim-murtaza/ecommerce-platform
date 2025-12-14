@@ -4,7 +4,7 @@ import csv
 conn_str = (
     'DRIVER={ODBC Driver 18 for SQL Server};'
     # 'SERVER=localhost,1433;'
-    'SERVER=localhost,31433;'
+    'SERVER=localhost;'
     'DATABASE=ECommerceDB;'
     'UID=sa;'
     'PWD=YourStrong!Passw0rd;'
