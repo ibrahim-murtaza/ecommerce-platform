@@ -15,6 +15,6 @@ obj/
 *.user
 *.suo
 
-# Secrets (if you create these later)
+# Secrets
 appsettings.Development.json
 connectionstrings.config
